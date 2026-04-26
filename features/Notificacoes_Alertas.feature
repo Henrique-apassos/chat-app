@@ -6,8 +6,8 @@ Feature: Notificações e Alertas
   Scenario: Banner de notificação exibido em outra tela
     Given que o usuário "Ana" está na tela "Configurações de Perfil"
     And possui conexão ativa com o servidor
-    When o usuário "João" envia a mensagem "E aí, tudo bem?" para "Ana"
-    Then o sistema exibe um banner no topo da tela com "João" e "E aí, tudo bem?"
+    When o usuário "Filipe" envia a mensagem "E aí, tudo bem?" para "Ana"
+    Then o sistema exibe um banner no topo da tela com "Filipe" e "E aí, tudo bem?"
     And o banner desaparece após 4 segundos
 
   Scenario: Badge zerado ao abrir conversa
