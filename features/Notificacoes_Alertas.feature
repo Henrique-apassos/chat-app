@@ -30,3 +30,10 @@ Feature: Notificações e Alertas
     When o serviço recebe a requisição GET /api/v1/notifications/badges
     Then o serviço retorna HTTP 503 Service Unavailable
     And o corpo da resposta contém a mensagem "Serviço temporariamente indisponível"
+
+  Scenario: Notificação recebida com tela bloqueada
+    Given que o usuário "Ana" está com a tela do dispositivo bloqueada
+    And possui notificações push ativadas
+    When o usuário "João" envia uma mensagem urgente para "Ana"
+    Then o sistema exibe o banner de notificação na tela de bloqueio
+    And o dispositivo emite vibração curta
