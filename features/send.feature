@@ -13,3 +13,10 @@ Scenario: Envio de mensagem de texto offline
     When Eu envio a mensagem "Bom dia, João"
     Then A mensagem entra em uma fila de espera interna
     And A mensagem deve aparecer no chat com o status "Aguardando conexão"
+
+Scenario: Envio de mensagem vazia
+    Given Eu estou na conversa com "Maria"
+    When Eu digito a mensagem contendo apenas espaços ou '\n'
+    And tento enviar a mensagem
+    Then Eu vejo que a mensagem não é adicionada no histórico da tela
+    And observo que nenhum evento de envio foi disparado para o servidor
