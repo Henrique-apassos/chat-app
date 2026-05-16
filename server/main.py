@@ -1,6 +1,6 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
-app = FastAPI
+app = FastAPI()
 
 # Classe que gerencia as conexões
 class GerenciadorDeConexao:
