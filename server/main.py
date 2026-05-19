@@ -9,12 +9,12 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="Chat App API",
     description="Backend do Chat App — Disciplina de Engenharia de Software",
-    version="1.0.0",
+    version="0.0.1",
 )
 
 # Incluímos as rotas (REST e WebSocket)
 app.include_router(auth_router.router)
-app.include_router(chat_router.router)  # Conectamos a rota do chat aqui!
+app.include_router(chat_router.router)
 
 @app.get("/health", tags=["Status"])
 def health_check():
