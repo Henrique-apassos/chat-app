@@ -5,17 +5,24 @@ import os
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./chatapp.db")
+# 1. Mudamos o valor padrão para apontar para dentro da pasta 'database'
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./database/chatapp.db")
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+# 2. Verifica se o banco configurado é o SQLite (para não dar erro se você usar Postgres no futuro)
+if DATABASE_URL.startswith("sqlite"):
+    # Cria a pasta 'database' na raiz do projeto
+    os.makedirs("database", exist_ok=True)
+
+# 3. Configuramos o connect_args APENAS para o SQLite (Postgres não aceita esse argumento)
+args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+
+engine = create_engine(DATABASE_URL, connect_args=args)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 
 class Base(DeclarativeBase):
     """Classe base da qual todos os Models herdam."""
     pass
-
 
 def get_db():
     """
