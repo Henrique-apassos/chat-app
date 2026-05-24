@@ -11,7 +11,7 @@
 
     <script>
         // Conecta no seu servidor FastAPI
-        var ws = new WebSocket("ws://localhost:8000/ws");
+        var ws = new WebSocket("ws://localhost:8000/ws"); // Adicione o ip aqui para conectar com outro computador
 
         // O que fazer quando receber uma mensagem dos outros
         ws.onmessage = function(event) {

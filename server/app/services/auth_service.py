@@ -7,6 +7,7 @@ from jose import jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
+from app.contacts_store import user_contacts
 from app.repositories.user_repository import UserRepository
 from app.schemas.user import TokenResponse, UserLoginRequest, UserRegisterRequest
 
@@ -33,9 +34,10 @@ class AuthService:
         """
         Fluxo de cadastro:
         1. Verifica se e-mail já existe → 409 se existir
-        2. Gera o hash da senha (nunca salva a senha pura)
-        3. Persiste a pessoa no banco
-        4. Retorna mensagem de sucesso
+        2. Verifica se nome_usuario já existe → 409 se existir
+        3. Gera o hash da senha (nunca salva a senha pura)
+        4. Persiste a pessoa no banco
+        5. Retorna mensagem de sucesso
         """
         if self.repo.find_by_email(data.email):
             raise HTTPException(
@@ -43,11 +45,17 @@ class AuthService:
                 detail="E-mail já cadastrado",
             )
 
+        if self.repo.find_by_nome_usuario(data.nome_usuario):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Nome de usuário já cadastrado",
+            )
+
         senha_hasheada = pwd_context.hash(data.senha)
 
         self.repo.create(
+            nome_usuario=data.nome_usuario,
             email=data.email,
-            nome_de_usuario=data.nome_de_usuario,
             telefone=data.telefone,
             senha=senha_hasheada,
         )
@@ -62,7 +70,7 @@ class AuthService:
         3. Se qualquer etapa falhar → 401 com mensagem GENÉRICA
            (nunca revelar qual campo está errado — segurança)
         4. Gera token JWT com tempo de expiração
-        5. Retorna token e lista de contatos (vazia por ora)
+        5. Retorna token, welcome_message e lista de contatos
         """
         pessoa = self.repo.find_by_email(data.email)
 
@@ -81,15 +89,18 @@ class AuthService:
         # Gera o token JWT com expiração
         expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         payload = {
-            "sub": str(pessoa.id_pessoa),
+            "sub": pessoa.nome_usuario,
             "email": pessoa.email,
             "exp": expire,
         }
         access_token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
+        contatos = user_contacts.get(pessoa.email, [])
+
         return TokenResponse(
             access_token=access_token,
             token_type="bearer",
             expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-            contacts=[],  # TODO [Dívida Técnica - Sprint 3]: integrar lista de contatos
+            welcome_message=f"Bem-vindo, {pessoa.email}",
+            contacts=contatos,
         )

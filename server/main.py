@@ -1,37 +1,21 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI
 
-app = FastAPI()
+from app.database import Base, engine
+from app.routers import auth_router, chat_router  
 
-# Classe que gerencia as conexões
-class GerenciadorDeConexao:
-    def __init__(self):
-        self.conexoes_ativas: list[WebSocket] = []
+# Cria as tabelas no banco automaticamente ao iniciar
+Base.metadata.create_all(bind=engine)
 
-    async def conectar(self, websocket: WebSocket):
-        await websocket.accept()
-        self.conexoes_ativas.append(websocket)
-        print("[*] Nova Conexão estabelecida!")
+app = FastAPI(
+    title="Chat App API",
+    description="Backend do Chat App — Disciplina de Engenharia de Software",
+    version="0.0.1",
+)
 
-    def deconectar(self, websocket: WebSocket):
-        self.conexoes_ativas.remove(websocket)
-        print("[*] Conexão encerrada.")
-    
-    async def enviar_mensagem(self, mensagem: str, remetente: WebSocket ):
-        for conexao in self.conexoes_ativas:
-            if conexao != remetente:
-                await conexao.send_text(mensagem)
+# Incluímos as rotas (REST e WebSocket)
+app.include_router(auth_router.router)
+app.include_router(chat_router.router)
 
-gereciador = GerenciadorDeConexao()
-
-# Porta de entrada para conexão dos clients
-@app.websocket("/ws")
-async def endpoint_websocket(websocket: WebSocket):
-    await gereciador.conectar(websocket)
-    try:
-        while True:
-            mensagem = await websocket.receive_text()
-
-            await gereciador.enviar_mensagem(mensagem, remetente=websocket)
-    except:
-        # Quando o cliente fecha a aba do navegador
-        gereciador.deconectar(websocket)
+@app.get("/health", tags=["Status"])
+def health_check():
+    return {"status": "ok", "message": "API rodando com sucesso"}

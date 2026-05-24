@@ -3,8 +3,8 @@ from pydantic import BaseModel, EmailStr, field_validator
 
 class UserRegisterRequest(BaseModel):
     """Dados esperados no corpo da requisição de cadastro."""
+    nome_usuario: str
     email: EmailStr
-    nome_de_usuario: str
     telefone: str
     senha: str  # senha pura — será hasheada no Service antes de salvar
 
@@ -28,4 +28,5 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str
     expires_in: int
+    welcome_message: str = ""
     contacts: list = []  # TODO [Dívida Técnica - Sprint 3]: retornar lista real de contatos
