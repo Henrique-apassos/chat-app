@@ -1,18 +1,27 @@
-from sqlalchemy import String, Integer
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database import Base
 
 
 class UserModel(Base):
     """
-    Representa a tabela 'pessoas' no banco de dados,
-    mapeada diretamente a partir do modelo conceitual do drawio.
-    ATENÇÃO: o campo 'senha' armazena o HASH da senha, nunca a senha pura.
-    """
-    __tablename__ = "pessoas"
+    Representa a tabela 'pessoa' no banco de dados.
 
-    id_pessoa: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
-    nome_de_usuario: Mapped[str] = mapped_column(String, nullable=False)
-    email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
-    senha: Mapped[str] = mapped_column(String, nullable=False)
-    telefone: Mapped[str] = mapped_column(String, nullable=False)
+    Campos obrigatórios (preenchidos no cadastro):
+        nome_usuario, email, senha, telefone
+
+    Campos opcionais (preenchidos na edição de perfil — outro membro):
+        nome, sobrenome, biografia, caminho_foto
+
+    ATENÇÃO: 'senha' armazena o HASH bcrypt, nunca a senha pura.
+    """
+    __tablename__ = "pessoa"
+
+    usuario: Mapped[str] = mapped_column("USUARIO", String, primary_key=True)
+    email: Mapped[str] = mapped_column("EMAIL", String, unique=True)
+    senha: Mapped[str] = mapped_column("SENHA", String)
+    telefone: Mapped[str] = mapped_column("TELEFONE", String, unique=True)
+    nome: Mapped[str] = mapped_column("NOME", String)
+    sobrenome: Mapped[str | None] = mapped_column("SOBRENOME", String)
+    biografia: Mapped[str | None] = mapped_column("BIOGRAFIA", String)
+    caminho_foto: Mapped[str | None] = mapped_column("CAMINHO_FOTO", String)

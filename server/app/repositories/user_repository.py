@@ -15,17 +15,22 @@ class UserRepository:
         """Busca uma pessoa pelo e-mail. Retorna None se não existir."""
         return self.db.query(UserModel).filter(UserModel.email == email).first()
 
+    def find_by_nome_usuario(self, usuario: str) -> UserModel | None:
+        return self.db.query(UserModel).filter(
+            UserModel.usuario == usuario
+        ).first()
+
     def create(
         self,
+        usuario: str,
         email: str,
-        nome_de_usuario: str,
         telefone: str,
-        senha: str,  # recebe a senha JÁ hasheada — o hash é feito no Service
+        senha: str,
     ) -> UserModel:
         """Cria e persiste uma nova pessoa no banco."""
         pessoa = UserModel(
+            usuario=usuario,
             email=email,
-            nome_de_usuario=nome_de_usuario,
             telefone=telefone,
             senha=senha,
         )

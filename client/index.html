@@ -1,38 +1,69 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chapp</title>
+    <title>Meu Chat Web</title>
 </head>
 <body>
-    <h1>Chat</h1>
-    <input type="text" id="mensagemBox" placeholder="Digite uma mensagem..."/>
-    <button onclick="enviarMensagem()">Enviar</button>
-    <ul id="historico"></ul>
+    <h1>Chat App</h1>
+    
+    <div id="login-area">
+        <label>Qual o seu usuário?</label>
+        <input type="text" id="nomeUsuario" placeholder="Ex: joao" />
+        <button onclick="conectar()">Entrar no Chat</button>
+    </div>
+
+    <div id="chat-area" style="display: none; margin-top: 20px;">
+        <input type="text" id="mensagemBox" placeholder="Digite uma mensagem..."/>
+        <button onclick="enviarMensagem()">Enviar</button>
+        <ul id="historico"></ul>
+    </div>
 
     <script>
-        // Conecta no seu servidor FastAPI
-        var ws = new WebSocket("ws://localhost:8000/ws");
+        var ws = null; // Começa sem conexão
 
-        // O que fazer quando receber uma mensagem dos outros
-        ws.onmessage = function(event) {
-            var historico = document.getElementById('historico');
-            var novaLinha = document.createElement('li');
-            novaLinha.innerHTML = "<b>Outro computador:</b> " + event.data;
-            historico.appendChild(novaLinha);
-        };
+        function conectar() {
+            var usuario = document.getElementById("nomeUsuario").value;
+            
+            if (usuario === "") {
+                alert("Por favor, digite um nome de usuário!");
+                return;
+            }
 
-        // Função do botão para enviar mensagem
+            // Conecta no FastAPI usando o nome que foi digitado
+            ws = new WebSocket("ws://127.0.0.1:8000/ws/" + usuario); // Caso esteja em outro computador altere esta linha
+
+            // O que acontece quando a conexão dá certo
+            ws.onopen = function() {
+                // Esconde a área de login e mostra o chat
+                document.getElementById("login-area").style.display = "none";
+                document.getElementById("chat-area").style.display = "block";
+            };
+
+            // O que acontece quando recebe uma mensagem dos outros
+            ws.onmessage = function(event) {
+                var historico = document.getElementById('historico');
+                var novaLinha = document.createElement('li');
+                // O seu backend já está formatando como "[joao] texto", então é só exibir
+                novaLinha.innerHTML = event.data; 
+                historico.appendChild(novaLinha);
+            };
+        }
+
         function enviarMensagem() {
             var input = document.getElementById("mensagemBox");
-            ws.send(input.value); // Envia para o Python
             
-            // Adiciona a própria mensagem na tela
-            var historico = document.getElementById('historico');
-            var novaLinha = document.createElement('li');
-            novaLinha.innerHTML = "<b>Você:</b> " + input.value;
-            historico.appendChild(novaLinha);
-            
-            input.value = ''; // Limpa a caixa de texto
+            // Só envia se a caixa não estiver vazia
+            if (input.value !== "") {
+                ws.send(input.value); // Envia para o servidor Python
+                
+                // Adiciona a sua própria mensagem na tela
+                var historico = document.getElementById('historico');
+                var novaLinha = document.createElement('li');
+                novaLinha.innerHTML = "<b>Você:</b> " + input.value;
+                historico.appendChild(novaLinha);
+                
+                input.value = ''; // Limpa a caixa de texto
+            }
         }
     </script>
 </body>

@@ -4,7 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.database import Base, get_db
-from app.main import app
+from main import app
+import app.contacts_store as contacts_store
 
 TEST_DATABASE_URL = "sqlite:///./test_chatapp.db"
 
@@ -29,6 +30,7 @@ def setup_database():
     Base.metadata.create_all(bind=engine_test)
     yield
     Base.metadata.drop_all(bind=engine_test)
+    contacts_store.user_contacts.clear()
 
 
 @pytest.fixture
@@ -38,3 +40,8 @@ def client():
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def context():
+    return {}
