@@ -3,6 +3,7 @@ from datetime import datetime
 
 from app.database import SessionLocal
 from app.models.mensagem import MensagemModel
+from app.models.grupo import GrupoModel
 from app.core.ws_manager import gerenciador 
 
 router = APIRouter(
