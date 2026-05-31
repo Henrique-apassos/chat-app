@@ -1,39 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Chapp</title>
-</head>
-<body>
-    <h1>Chat</h1>
-    <input type="text" id="mensagemBox" placeholder="Digite uma mensagem..."/>
-    <button onclick="enviarMensagem()">Enviar</button>
-    <ul id="historico"></ul>
-
-    <script>
-        // Conecta no seu servidor FastAPI
-        var ws = new WebSocket("ws://localhost:8000/ws");
-
-        // O que fazer quando receber uma mensagem dos outros
-        ws.onmessage = function(event) {
-            var historico = document.getElementById('historico');
-            var novaLinha = document.createElement('li');
-            novaLinha.innerHTML = "<b>Outro computador:</b> " + event.data;
-            historico.appendChild(novaLinha);
-        };
-
-        // Função do botão para enviar mensagem
-        function enviarMensagem() {
-            var input = document.getElementById("mensagemBox");
-            ws.send(input.value); // Envia para o Python
-            
-            // Adiciona a própria mensagem na tela
-            var historico = document.getElementById('historico');
-            var novaLinha = document.createElement('li');
-            novaLinha.innerHTML = "<b>Você:</b> " + input.value;
-            historico.appendChild(novaLinha);
-            
-            input.value = ''; // Limpa a caixa de texto
-        }
-    </script>
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:ital,wght@0,700;0,800;1,700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>client</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
