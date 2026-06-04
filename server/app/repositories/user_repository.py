@@ -15,9 +15,9 @@ class UserRepository:
         """Busca uma pessoa pelo e-mail. Retorna None se não existir."""
         return self.db.query(UserModel).filter(UserModel.email == email).first()
 
-    def find_by_nome_usuario(self, usuario: str) -> UserModel | None:
+    def find_by_nome_usuario(self, nome_usuario: str) -> UserModel | None:
         return self.db.query(UserModel).filter(
-            UserModel.usuario == usuario
+            UserModel.nome_usuario == usuario
         ).first()
 
     def create(
