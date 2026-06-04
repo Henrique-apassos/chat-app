@@ -1,0 +1,6 @@
+
+cypress.config.js
+cypress/
+__pycache__/
+*.db
+.env
