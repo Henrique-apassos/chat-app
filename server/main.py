@@ -9,7 +9,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="Chat App API",
     description="Backend do Chat App — Disciplina de Engenharia de Software",
-    version="1.0.0",
+    version="0.0.1",
 )
 
 app.add_middleware(

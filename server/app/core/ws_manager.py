@@ -10,7 +10,7 @@ class GerenciadorDeConexao:
         self.conexoes_ativas.append(websocket)
         print("[*] Nova Conexão estabelecida!")
 
-    def deconectar(self, websocket: WebSocket):
+    def desconectar(self, websocket: WebSocket): 
         self.conexoes_ativas.remove(websocket)
         print("[*] Conexão encerrada.")
     
