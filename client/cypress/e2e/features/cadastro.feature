@@ -54,3 +54,13 @@ Feature: Cadastro de Usuários - Interface
     And preencho a senha com "Segura@123"
     And clico no botão de cadastro
     Then vejo a mensagem de erro "Nome de usuário deve ter no mínimo 3 caracteres"
+
+  Scenario: Navegação da tela de cadastro para login
+    Given estou na tela de cadastro
+    When clico no link "Entrar"
+    Then sou redirecionado para a tela de boas-vindas
+
+  Scenario: Navegação da tela de login para cadastro
+    Given estou na tela de login
+    When clico no link "Criar conta"
+    Then sou redirecionado para a tela de cadastro

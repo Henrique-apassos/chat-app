@@ -18,7 +18,7 @@ Given('o usuário {string} está cadastrado com senha {string}', (email, senha) 
     url: 'http://localhost:8000/auth/register',
     body: {
       email: email,
-      nome_usuario: email.split('@')[0],
+      usuario: email.split('@')[0],
       telefone: '(88) 98888-8888',
       senha: senha,
     },

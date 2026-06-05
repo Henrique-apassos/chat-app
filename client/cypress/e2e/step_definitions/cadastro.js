@@ -18,7 +18,7 @@ Given('já existe um usuário com e-mail {string}', (email) => {
     url: 'http://localhost:8000/auth/register',
     body: {
       email: email,
-      nome_usuario: 'usuario_existente',
+      usuario: 'usuario_existente',
       telefone: '(88) 98888-8888',
       senha: 'Segura@123',
     },
@@ -31,7 +31,7 @@ When('preencho o telefone com {string}', (telefone) => {
 })
 
 When('preencho o nome de usuário com {string}', (nome) => {
-  cy.get('[data-cy="input-nome-usuario"]').clear().type(nome)
+  cy.get('[data-cy="input-usuario"]').clear().type(nome)
 })
 
 When('clico no botão de cadastro', () => {
@@ -41,4 +41,17 @@ When('clico no botão de cadastro', () => {
 Then('sou redirecionado para a tela de sucesso', () => {
   cy.url().should('include', '/cadastro-sucesso')
   cy.get('[data-cy="msg-sucesso"]').should('be.visible')
+})
+
+When('clico no link {string}', (texto) => {
+  cy.contains(texto).click()
+})
+
+Then('sou redirecionado para a tela de boas-vindas', () => {
+  cy.url().should('include', '/')
+  cy.url().should('not.include', '/cadastro')
+})
+
+Then('sou redirecionado para a tela de cadastro', () => {
+  cy.url().should('include', '/cadastro')
 })

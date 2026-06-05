@@ -154,3 +154,12 @@ def sistema_mantem_usuario_inalterado(client, context, nome_usuario, email):
 @then('o sistema rejeita o cadastro com erro de validação')
 def sistema_rejeita_senha_curta(context):
     assert context['response'].status_code == 422
+
+@scenario('registration_access.feature', 'Cadastro com nome de usuário já existente')
+def test_cadastro_usuario_duplicado():
+    pass
+
+
+@scenario('registration_access.feature', 'Cadastro com senha de exatamente 6 caracteres')
+def test_cadastro_senha_limite_exato():
+    pass
