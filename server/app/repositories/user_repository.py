@@ -15,9 +15,9 @@ class UserRepository:
         """Busca uma pessoa pelo e-mail. Retorna None se não existir."""
         return self.db.query(UserModel).filter(UserModel.email == email).first()
 
-    def find_by_nome_usuario(self, nome_usuario: str) -> UserModel | None:
+    def find_by_nome_usuario(self, usuario: str) -> UserModel | None:
         return self.db.query(UserModel).filter(
-            UserModel.nome_usuario == usuario
+            UserModel.usuario == usuario
         ).first()
 
     def create(
@@ -27,12 +27,15 @@ class UserRepository:
         telefone: str,
         senha: str,
     ) -> UserModel:
-        """Cria e persiste uma nova pessoa no banco."""
+        """Cria e persiste uma nova pessoa no banco.
+        'nome' é preenchido automaticamente com o valor de 'usuario'.
+        """
         pessoa = UserModel(
             usuario=usuario,
             email=email,
             telefone=telefone,
             senha=senha,
+            nome=usuario,
         )
         self.db.add(pessoa)
         self.db.commit()

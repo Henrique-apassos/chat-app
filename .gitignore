@@ -16,7 +16,10 @@ __pycache__/
 .env
 
 # Configurações da IDE (VS Code)
-.vscode/
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
 
 # Cache de Testes
 .pytest_cache/
@@ -30,18 +33,17 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Node
 node_modules
 dist
 dist-ssr
 *.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Cypress da raiz (gerado por engano)
+cypress.config.js
+cypress/

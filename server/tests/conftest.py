@@ -16,7 +16,6 @@ engine_test = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine_test)
 
-# Esta linha injeta o banco falso direto no seu router
 database.SessionLocal = TestingSessionLocal
 
 
