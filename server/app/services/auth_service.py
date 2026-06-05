@@ -34,7 +34,7 @@ class AuthService:
         """
         Fluxo de cadastro:
         1. Verifica se e-mail já existe → 409 se existir
-        2. Verifica se nome_usuario já existe → 409 se existir
+        2. Verifica se usuario já existe → 409 se existir
         3. Gera o hash da senha (nunca salva a senha pura)
         4. Persiste a pessoa no banco
         5. Retorna mensagem de sucesso
@@ -45,7 +45,7 @@ class AuthService:
                 detail="E-mail já cadastrado",
             )
 
-        if self.repo.find_by_nome_usuario(data.nome_usuario):
+        if self.repo.find_by_usuario(data.usuario):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Nome de usuário já cadastrado",
@@ -54,7 +54,7 @@ class AuthService:
         senha_hasheada = pwd_context.hash(data.senha)
 
         self.repo.create(
-            nome_usuario=data.nome_usuario,
+            usuario=data.usuario,
             email=data.email,
             telefone=data.telefone,
             senha=senha_hasheada,
@@ -89,7 +89,7 @@ class AuthService:
         # Gera o token JWT com expiração
         expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         payload = {
-            "sub": pessoa.nome_usuario,
+            "sub": pessoa.usuario,
             "email": pessoa.email,
             "exp": expire,
         }

@@ -7,7 +7,7 @@ export default function Cadastro() {
   const [form, setForm] = useState({
     email: '',
     telefone: '',
-    nome_usuario: '',
+    usuario: '',
     senha: '',
   })
   const [erro, setErro] = useState('')
@@ -41,7 +41,7 @@ export default function Cadastro() {
       setErro('Telefone inválido. Use o formato (88) 98888-8888')
       return false
     }
-    if (form.nome_usuario.trim().length < 3) {
+    if (form.usuario.trim().length < 3) {
       setErro('Nome de usuário deve ter no mínimo 3 caracteres')
       return false
     }
@@ -97,11 +97,11 @@ export default function Cadastro() {
           className="w-full bg-[#A2DAE0] rounded-lg px-4 py-2 mb-3 text-[#06065D] placeholder-[#06065D] outline-none"
         />
         <input
-          data-cy="input-nome-usuario"
-          name="nome_usuario"
+          data-cy="input-usuario"
+          name="usuario"
           type="text"
           placeholder="nome de usuário"
-          value={form.nome_usuario}
+          value={form.usuario}
           onChange={handleChange}
           className="w-full bg-[#A2DAE0] rounded-lg px-4 py-2 mb-3 text-[#06065D] placeholder-[#06065D] outline-none"
         />
