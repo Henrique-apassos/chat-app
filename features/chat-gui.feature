@@ -1,7 +1,7 @@
 Feature: Interface de Chat
   As an usuário do aplicativo de mensagens
   I want interagir com a interface do chat
-  To enviar e receber mensagens em tempo real
+  So that enviar e receber mensagens em tempo real
 
   Scenario: Envio de mensagem exibe a mensagem no histórico
     Given que estou autenticado como "joao"
@@ -48,7 +48,7 @@ Feature: Interface de Chat
     And estou na tela de conversa com "maria"
     And estou sem conexão com a internet
     When eu digito "Bom dia" no campo de texto
-    And faço o comando de enviar
+    And clico no botão de enviar
     Then a mensagem "Bom dia" aparece no histórico com o status "Aguardando conexão"
 
   Scenario: Reconexão envia mensagem pendente e atualiza status
