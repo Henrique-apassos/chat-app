@@ -11,6 +11,11 @@ def test_cadastro_email_ja_existente():
     pass
 
 
+@scenario('registration_access.feature', 'Cadastro com senha menor que 6 caracteres')
+def test_cadastro_senha_curta():
+    pass
+
+
 @given('estou na tela de cadastro')
 def estou_na_tela_de_cadastro():
     pass
@@ -36,7 +41,7 @@ def sistema_nao_possui_email_upper(email):
 ))
 def sistema_ja_possui_usuario(client, context, email, nome_usuario, senha):
     response = client.post('/auth/register', json={
-        'nome_usuario': nome_usuario,
+        'usuario': nome_usuario,
         'email': email,
         'telefone': '(00) 000000000',
         'senha': senha,
@@ -44,7 +49,7 @@ def sistema_ja_possui_usuario(client, context, email, nome_usuario, senha):
     assert response.status_code == 201
     context['usuario_existente'] = {
         'email': email,
-        'nome_usuario': nome_usuario,
+        'usuario': nome_usuario,
         'senha': senha,
     }
 
@@ -72,7 +77,7 @@ def insiro_senha(context, senha):
 @when(parsers.parse('clico no botão "{botao}"'))
 def clico_no_botao_cadastrese(client, context, botao):
     response = client.post('/auth/register', json={
-        'nome_usuario': context.get('nome_usuario', ''),
+        'usuario': context.get('nome_usuario', ''),
         'email': context.get('email', ''),
         'telefone': context.get('telefone', '(00) 000000000'),
         'senha': context.get('senha', ''),
@@ -98,7 +103,7 @@ def eu_insiro_senha(context, senha):
 @when(parsers.parse('eu clico no botão "{botao}"'))
 def eu_clico_no_botao(client, context, botao):
     response = client.post('/auth/register', json={
-        'nome_usuario': context.get('nome_usuario', ''),
+        'usuario': context.get('nome_usuario', ''),
         'email': context.get('email', ''),
         'telefone': context.get('telefone', '(00) 000000000'),
         'senha': context.get('senha', ''),
@@ -116,8 +121,8 @@ def me_redireciona_para_login(context):
     assert context['response'].status_code == 201
 
 
-@then(parsers.parse('o sistema passa a ter usuário "{nome_usuario}" com e-mail "{email}"'))
-def sistema_tem_usuario(client, nome_usuario, email):
+@then(parsers.parse('o sistema passa a ter usuário "{usuario}" com e-mail "{email}"'))
+def sistema_tem_usuario(client, usuario, email):
     response = client.post('/auth/login', json={
         'email': email,
         'senha': 'senha-errada-proposital',
@@ -144,10 +149,6 @@ def sistema_mantem_usuario_inalterado(client, context, nome_usuario, email):
         'senha': senha_original,
     })
     assert response.status_code == 200
-
-@scenario('registration_access.feature', 'Cadastro com senha menor que 6 caracteres')
-def test_cadastro_senha_curta():
-    pass
 
 
 @then('o sistema rejeita o cadastro com erro de validação')

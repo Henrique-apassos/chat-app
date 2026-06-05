@@ -17,15 +17,10 @@ SECRET_KEY = os.getenv("SECRET_KEY", "chave-padrao-insegura-mude-no-env")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
-# Contexto de criptografia — usa bcrypt, o padrão da indústria
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class AuthService:
-    """
-    Contém toda a lógica de negócio de autenticação.
-    Não acessa o banco diretamente — usa o Repository para isso.
-    """
 
     def __init__(self, db: Session):
         self.repo = UserRepository(db)
@@ -63,18 +58,8 @@ class AuthService:
         return {"message": "Cadastro realizado com sucesso"}
 
     def login(self, data: UserLoginRequest) -> TokenResponse:
-        """
-        Fluxo de login:
-        1. Busca pessoa pelo e-mail
-        2. Verifica se a senha bate com o hash armazenado
-        3. Se qualquer etapa falhar → 401 com mensagem GENÉRICA
-           (nunca revelar qual campo está errado — segurança)
-        4. Gera token JWT com tempo de expiração
-        5. Retorna token, welcome_message e lista de contatos
-        """
         pessoa = self.repo.find_by_email(data.email)
 
-        # Mensagem genérica intencional — não revela se foi e-mail ou senha que errou
         credenciais_invalidas = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciais inválidas",
@@ -86,7 +71,6 @@ class AuthService:
         if not pwd_context.verify(data.senha, pessoa.senha):
             raise credenciais_invalidas
 
-        # Gera o token JWT com expiração
         expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         payload = {
             "sub": pessoa.usuario,
