@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.user import TokenResponse, UserLoginRequest, UserRegisterRequest
 from app.services.auth_service import AuthService
+from app.models.user import UserModel
 
 router = APIRouter(
     prefix="/auth",
@@ -68,3 +69,21 @@ def cleanup(db: Session = Depends(get_db)) -> dict:
         db.query(UserModel).delete()
         db.commit()
         return {"message": "Banco limpo com sucesso"}
+    
+@router.get("/usuarios")
+def listar_todos_os_usuarios(db: Session = Depends(get_db)):
+    """
+    Busca todos os usuários cadastrados no banco para preencher a barra lateral do chat.
+    """
+    # Busca todo mundo na tabela
+    usuarios_db = db.query(UserModel).all()
+    
+    # Monta uma lista limpa só com o que o frontend precisa (evitando enviar senhas!)
+    lista_contatos = []
+    for user in usuarios_db:
+        lista_contatos.append({
+            "usuario": user.usuario,
+            "nome": user.nome
+        })
+        
+    return lista_contatos
