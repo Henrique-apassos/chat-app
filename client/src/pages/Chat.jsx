@@ -82,6 +82,44 @@ export default function Chat() {
         fimDoChatRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [historico]);
 
+    // Efeito para carregar o histórico de mensagens quando muda de contato
+  useEffect(() => {
+    const carregarHistorico = async () => {
+      // Se não houver contato selecionado, não faz nada
+      if (!contatoAtivo) return;
+
+      try {
+        // Limpa a tela para não misturar mensagens de pessoas diferentes
+        setHistorico([]);
+
+        // O identificador do contato
+        const destinatario = contatoAtivo.usuario;
+
+        // Faz o pedido à nova rota do backend (que trará o histórico entre si e o contato)
+        const resposta = await fetch(`http://127.0.0.1:8000/mensagens/${usuarioLogado}/${destinatario}`);
+
+        if (resposta.ok) {
+          const mensagensAntigas = await resposta.json();
+
+          // Formata as mensagens vindas da base de dados
+          const historicoFormatado = mensagensAntigas.map(msg => {
+            if (msg.remetente === usuarioLogado) {
+              return `[Você]: ${msg.texto}`;
+            } 
+            else {
+              return `[Recebido]: ${msg.texto}`;
+            }
+          });
+          setHistorico(historicoFormatado);
+        }
+      } catch (erro) {
+        console.error("Erro ao carregar o histórico:", erro);
+      }
+    };
+
+    carregarHistorico();
+  }, [contatoAtivo, usuarioLogado]); // Este efeito dispara SEMPRE que o contatoAtivo mudar!
+
     // Função para Enviar a Mensagem
     const enviarMensagem = () => {
         if (!mensagem.trim() || !contatoAtivo) return;
