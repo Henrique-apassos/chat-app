@@ -17,19 +17,34 @@ export default function Login({ embedded = false }) {
   async function handleSubmit() {
     setCarregando(true)
     try {
-      const response = await login(form) 
+      const response = await login(form)
       const data = await response.json()
 
       if (response.ok) {
         // Salva o token de autorização
         localStorage.setItem('token', data.access_token)
         
-        // ESSENCIAL PARA O CHAT: Salva o email logado para o WebSocket se conectar
-        localStorage.setItem('usuario', form.email) 
-        
-        //  Redireciona para o chat
+        // Bate na rota /me para pegar o nome de usuário real
+        try {
+          const meResponse = await fetch('http://127.0.0.1:8000/auth/me', {
+            headers: { 'Authorization': `Bearer ${data.access_token}` }
+          })
+
+          if (meResponse.ok) {
+            const meData = await meResponse.json()
+            // Salva o nome_usuario real que veio do banco de dados!
+            localStorage.setItem('usuario', meData.nome_usuario || meData.usuario)
+          } else {
+            // Se falhar, usa a primeira parte do email como plano B
+            localStorage.setItem('usuario', form.email.split('@')[0])
+          }
+        } catch (error) {
+          console.error("Erro ao buscar dados do usuário", error)
+          localStorage.setItem('usuario', form.email.split('@')[0])
+        }
         navigate('/chat')
-      } else {
+      }
+      else {
         setErro(data.detail || 'Erro ao fazer login')
         setForm({ ...form, senha: '' })
       }

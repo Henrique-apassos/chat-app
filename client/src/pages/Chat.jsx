@@ -51,11 +51,29 @@ export default function Chat() {
         ws.current.onopen = () => console.log("WebSocket Conectado como:", usuarioLogado);
 
         ws.current.onmessage = (event) => {
-            // Quando recebe mensagem do servidor, adiciona à tela
-            setHistorico((prev) => [...prev, event.data]);
-        };
+            let textoFinal = event.data; 
 
-        // Limpa a conexão se o usuário fechar a aba ou sair da página
+            try {
+                const stringCorrigida = event.data.replace(/'/g, '"');
+
+                
+                const pacote = JSON.parse(stringCorrigida);
+
+                if (typeof pacote === 'object' && pacote !== null) {
+                    textoFinal = pacote.texto || pacote.mensagem || pacote.msg || pacote.content || stringCorrigida;
+                }
+
+            } catch (e) {
+                const regex = /['"]?(?:texto|mensagem|msg|content)['"]?\s*:\s*['"](.*?)['"](?:}|$|,)/i;
+                const match = event.data.match(regex);
+
+                if (match && match[1]) {
+                    textoFinal = match[1];
+                }
+            }
+
+            setHistorico((prev) => [...prev, `[Recebido]: ${textoFinal}`]);
+        };
         return () => ws.current?.close();
     }, [usuarioLogado]);
 
