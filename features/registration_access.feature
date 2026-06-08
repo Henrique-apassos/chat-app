@@ -1,48 +1,57 @@
-Feature: Gestão de Cadastro e Acesso
-  As a visitante ou usuário do sistema
-  I want to realizar cadastro e login
-  So that eu possa acessar as funcionalidades de chat com segurança
+Feature: Cadastro de Usuários
+  As a visitante do sistema
+  I want to criar uma nova conta
+  So that eu possa acessar as funcionalidades do chat com segurança
 
-Scenario: Cadastro de novo usuário com sucesso
-    Given que estou na tela de cadastro
-    When eu insiro um e-mail válido, nome de usuário e senha
-    And clico no botão "Registrar"
-    Then o sistema deve criar minha conta
-    And me redirecionar até a tela principal do chat
+  Scenario: Cadastro de novo usuário com sucesso
+    Given estou na tela de cadastro
+    And o sistema não possui usuário com e-mail "joao@email.com"
+    When insiro e-mail "joao@email.com"
+    And insiro telefone "(88) 988888888"
+    And insiro nome de usuário "joaosilva"
+    And insiro senha "Segura@123"
+    And clico no botão "Cadastre-se"
+    Then o sistema exibe mensagem "Cadastro realizado com sucesso"
+    And me redireciona para tela de login
+    And o sistema passa a ter usuário "joaosilva" com e-mail "joao@email.com"
 
-Scenario: Login com credenciais válidas
-    Given que possuo uma conta registrada
-    And estou na tela de login
-    When eu informo meu e-mail e senha corretos
-    And clico em "Entrar"
-    Then o sistema deve validar meu acesso
-    And exibir minha lista de contatos
+  Scenario: Cadastro com e-mail já existente
+    Given estou na tela de "Cadastro de Usuário"
+    And o sistema já possui usuário com e-mail "existente@email.com", nome "UsuarioExistente" e senha "Senha@123"
+    And o sistema NÃO possui usuário com e-mail "novo@email.com"
+    When eu insiro e-mail "existente@email.com"
+    And eu insiro nome de usuário "NovoUsuario"
+    And eu insiro senha "NovaSenha@123"
+    And eu clico no botão "Cadastre-se"
+    Then o sistema exibe mensagem de alerta "E-mail já cadastrado"
+    And eu continuo na tela "Cadastro de Usuário"
+    And o sistema mantém o usuário "UsuarioExistente" com e-mail "existente@email.com" inalterado
 
-Scenario: Cadastro com e-mail já existente
-    Given que estou na tela de cadastro
-    When eu tento registrar um e-mail que já possui conta
-    Then o sistema deve exibir um alerta de "E-mail já cadastrado"
+    Scenario: Cadastro com senha menor que 6 caracteres
+    Given estou na tela de cadastro
+    And o sistema não possui usuário com e-mail "joao@email.com"
+    When insiro e-mail "joao@email.com"
+    And insiro telefone "(88) 988888888"
+    And insiro nome de usuário "joaosilva"
+    And insiro senha "abc"
+    And clico no botão "Cadastre-se"
+    Then o sistema rejeita o cadastro com erro de validação
 
-Scenario: Login com senha incorreta
-    Given que possuo uma conta cadastrada
-    When eu informo meu e-mail correto mas a senha errada
-    Then o sistema deve impedir o acesso
-    And exibir a mensagem "Credenciais inválidas"
-    And registrar a tentativa de login suspeita
+    Scenario: Cadastro com nome de usuário já existente
+    Given estou na tela de cadastro
+    And o sistema já possui usuário com e-mail "existente@email.com", nome "UsuarioExistente" e senha "Senha@123"
+    When eu insiro e-mail "novo@email.com"
+    And eu insiro nome de usuário "UsuarioExistente"
+    And eu insiro senha "Segura@123"
+    And eu clico no botão "Cadastre-se"
+    Then o sistema exibe mensagem de alerta "Nome de usuário já cadastrado"
 
-Scenario: [EXPERIMENTAL] Recuperação de conta via SMS
-    Given que esqueci minha senha de acesso
-    When eu solicito a recuperação via número de celular
-    Then o sistema deve enviar um código de verificação por SMS
-    And permitir a criação de uma nova senha temporária
-
-Scenario: [EXPERIMENTAL] Validação de segurança por e-mail
-    Given que o sistema detectou um acesso de um novo dispositivo
-    When eu confirmo minha identidade através do link enviado por e-mail
-    Then o sistema deve autorizar o novo dispositivo para uso
-
-Scenario: [FINAL] Validação de segurança por e-mail com expiração
-    Given que o sistema detectou um acesso de um novo dispositivo
-    When eu confirmo minha identidade através do link enviado por e-mail em até 10 minutos
-    Then o sistema deve autorizar o novo dispositivo
-    But o link deve expirar após esse período por questões de segurança
+  Scenario: Cadastro com senha de exatamente 6 caracteres
+    Given estou na tela de cadastro
+    And o sistema não possui usuário com e-mail "joao@email.com"
+    When insiro e-mail "joao@email.com"
+    And insiro telefone "(88) 988888888"
+    And insiro nome de usuário "joaosilva"
+    And insiro senha "Seis12"
+    And clico no botão "Cadastre-se"
+    Then o sistema exibe mensagem "Cadastro realizado com sucesso"
