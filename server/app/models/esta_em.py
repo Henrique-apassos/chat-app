@@ -2,7 +2,7 @@ from sqlalchemy import String, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database import Base
 
-class RecebeModel(Base):
+class EstaModel(Base):
     """
     Representa a tabela 'esta_em' no banco de dados.
     """
