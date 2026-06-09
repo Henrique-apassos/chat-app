@@ -151,6 +151,7 @@ export default function Chat() {
                     <span>{usuarioLogado}</span>
 
                     <button
+                        data-cy="btn-configuracoes"
                         onClick={() => setPerfilAberto(true)}
                         style={{
                             marginTop: '12px',

@@ -235,6 +235,7 @@ async function handleExcluirConta() {
     <div
       className="flex items-center justify-center">
       <div
+        data-cy="modal-configuracoes"
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-5xl bg-white rounded-3xl shadow-lg overflow-hidden flex"
       >
@@ -270,6 +271,7 @@ async function handleExcluirConta() {
                 </div>
 
                 <button
+                 data-cy="btn-sair-conta"
                 onClick={() => {
                     localStorage.removeItem('usuario')
                     localStorage.removeItem('token')
@@ -281,6 +283,7 @@ async function handleExcluirConta() {
                 </button>
 
                 <button
+                data-cy="btn-excluir-conta"
                 onClick={() => setModalExcluirAberto(true)}
                 className="text-red-600 text-lg hover:underline"
                 >
@@ -295,6 +298,7 @@ async function handleExcluirConta() {
 
                 {fotoPreview ? (
                     <img
+                    data-cy="foto-perfil"
                     src={fotoPreview}
                     alt="Foto de perfil"
                     className="w-full h-full object-cover rounded-full"
@@ -311,6 +315,7 @@ async function handleExcluirConta() {
                 )}
 
                 <input
+                    data-cy="input-foto"
                     id="input-foto"
                     type="file"
                     accept="image/*"
@@ -337,6 +342,7 @@ async function handleExcluirConta() {
 
             <div className="flex-1">
               <input
+                data-cy="input-nome"
                 name="nome"
                 value={form.nome}
                 onChange={handleChange}
@@ -345,6 +351,7 @@ async function handleExcluirConta() {
               />
 
               <input
+                data-cy="input-sobrenome"
                 name="sobrenome"
                 value={form.sobrenome}
                 onChange={handleChange}
@@ -353,6 +360,7 @@ async function handleExcluirConta() {
               />
 
               <input
+                data-cy="input-usuario"
                 name="novo_usuario"
                 value={form.novo_usuario}
                 onChange={handleChange}
@@ -361,7 +369,7 @@ async function handleExcluirConta() {
               />
 
               {errosCampos.novo_usuario && (
-                <p className="text-red-600 text-xs mb-3 -mt-2">
+                <p data-cy="erro-usuario" className="text-red-600 text-xs mb-3 -mt-2">
                     {errosCampos.novo_usuario}
                 </p>
                 )}
@@ -369,6 +377,7 @@ async function handleExcluirConta() {
           </div>
 
           <input
+            data-cy="input-telefone"
             name="telefone"
             value={form.telefone}
             onChange={handleChange}
@@ -377,12 +386,13 @@ async function handleExcluirConta() {
           />
 
           {errosCampos.telefone && (
-            <p className="text-red-600 text-xs mb-3 -mt-2">
+            <p data-cy="erro-telefone" className="text-red-600 text-xs mb-3 -mt-2">
                 {errosCampos.telefone}
             </p>
             )}
 
           <input
+            data-cy="input-email-perfil"
             name="email"
             value={form.email}
             onChange={handleChange}
@@ -392,12 +402,13 @@ async function handleExcluirConta() {
           />
 
           {errosCampos.email && (
-            <p className="text-red-600 text-xs mb-3 -mt-2">
+            <p data-cy="erro-email" className="text-red-600 text-xs mb-3 -mt-2">
                 {errosCampos.email}
             </p>
             )}
 
           <textarea
+            data-cy="input-biografia"
             name="biografia"
             value={form.biografia}
             onChange={handleChange}
@@ -406,19 +417,20 @@ async function handleExcluirConta() {
           />
 
             {errosCampos.biografia && (
-                <p className="text-red-600 text-xs mb-3 mt-1">
+                <p data-cy="erro-biografia" className="text-red-600 text-xs mb-3 mt-1">
                     {errosCampos.biografia}
                 </p>
                 )}
 
             {erro && Object.keys(errosCampos).length === 0 && (
-            <p className="text-red-600 text-sm text-center mt-4">
+            <p data-cy="erro-generico" className="text-red-600 text-sm text-center mt-4">
                 {erro}
             </p>
             )}
 
           <div className="flex justify-end mt-8">
             <button 
+            data-cy="btn-ok-perfil"
             onClick={handleSalvarEFechar}
             className="bg-[#0E49B5] text-white px-14 py-3 rounded-full font-semibold hover:opacity-90 transition">
               Ok
@@ -429,6 +441,7 @@ async function handleExcluirConta() {
       {modalExcluirAberto && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
             <div 
+                data-cy="modal-excluir-conta"
                 onClick={(e) => e.stopPropagation()}
                 className="bg-white rounded-2xl p-8 w-full max-w-md shadow-lg">
             <h2 className="text-2xl font-bold text-[#06065D] mb-3">
@@ -440,6 +453,7 @@ async function handleExcluirConta() {
             </p>
 
             <input
+                data-cy="input-senha-exclusao"
                 type="password"
                 value={senhaExclusao}
                 onChange={(e) => {
@@ -451,13 +465,14 @@ async function handleExcluirConta() {
             />
 
             {erroExclusao && (
-                <p className="text-red-600 text-sm mb-4">
+                <p data-cy="erro-exclusao" className="text-red-600 text-sm mb-4">
                 {erroExclusao}
                 </p>
             )}
 
             <div className="flex justify-end gap-3 mt-6">
                 <button
+                data-cy="btn-cancelar-exclusao"
                 onClick={() => {
                     setModalExcluirAberto(false)
                     setSenhaExclusao('')
@@ -469,6 +484,7 @@ async function handleExcluirConta() {
                 </button>
 
                 <button
+                data-cy="btn-confirmar-exclusao"
                 onClick={handleExcluirConta}
                 className="px-6 py-3 rounded-full bg-red-600 text-white font-semibold hover:opacity-90"
                 >

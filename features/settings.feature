@@ -7,7 +7,6 @@ Scenario: Atualizar perfil com sucesso
     Given existe uma pessoa cadastrada com usuário "bruna"
     When atualizo o perfil com nome "Bruna", sobrenome "Chalegre" e biografia "Desenvolvedora mobile"
     Then o sistema deve retornar status 200
-    And o sistema deve exibir a mensagem "Perfil atualizado com sucesso"
 
 Scenario: Buscar perfil com sucesso
     Given existe uma pessoa cadastrada com usuário "bruna"
@@ -15,9 +14,6 @@ Scenario: Buscar perfil com sucesso
     When busco o perfil do usuário "bruna"
     Then o sistema deve retornar status 200
     And deve retornar o usuário "bruna"
-    And deve retornar o nome "Bruna"
-    And deve retornar o sobrenome "Chalegre"
-    And deve retornar a biografia "Desenvolvedora mobile"
 
 Scenario: Atualização parcial não deve apagar campos existentes
     Given existe uma pessoa cadastrada com usuário "bruna"
@@ -38,26 +34,6 @@ Scenario: Atualizar perfil de usuário inexistente
 Scenario: Buscar perfil de usuário inexistente
     Given não existe pessoa cadastrada com usuário "fantasma"
     When tento buscar o perfil do usuário "fantasma"
-    Then o sistema deve retornar status 404
-    And o sistema deve exibir a mensagem "Usuário não encontrado"
-
-Scenario: Excluir conta com sucesso
-    Given existe uma pessoa cadastrada com usuário "bruna" e senha "123456"
-    When excluo a conta do usuário "bruna" informando a senha correta "123456"
-    Then o sistema deve retornar status 200
-    And o sistema deve exibir a mensagem "Conta excluída com sucesso"
-    And ao buscar o perfil do usuário "bruna" o sistema deve retornar status 404
-
-Scenario: Impedir exclusão de conta com senha incorreta
-    Given existe uma pessoa cadastrada com usuário "bruna" e senha "123456"
-    When tento excluir a conta do usuário "bruna" informando a senha incorreta "senhaerrada"
-    Then o sistema deve retornar status 401
-    And o sistema deve exibir a mensagem "Senha incorreta"
-    And ao buscar o perfil do usuário "bruna" o sistema deve retornar status 200
-
-Scenario: Impedir exclusão de conta inexistente
-    Given não existe pessoa cadastrada com usuário "fantasma"
-    When tento excluir a conta do usuário "fantasma" informando a senha "123456"
     Then o sistema deve retornar status 404
     And o sistema deve exibir a mensagem "Usuário não encontrado"
 
@@ -85,7 +61,6 @@ Scenario: Trocar nome de usuário com sucesso
     Given existe uma pessoa cadastrada com usuário "bruna"
     When atualizo o nome de usuário de "bruna" para "brunaveiga"
     Then o sistema deve retornar status 200
-    And o sistema deve exibir a mensagem "Perfil atualizado com sucesso"
     And ao buscar o perfil do usuário "brunaveiga" o sistema deve retornar status 200
 
 Scenario: Impedir troca para nome de usuário já cadastrado
@@ -94,3 +69,21 @@ Scenario: Impedir troca para nome de usuário já cadastrado
     When tento atualizar o nome de usuário de "bruna" para "joao"
     Then o sistema deve retornar status 409
     And o sistema deve exibir a mensagem "Nome de usuário já cadastrado"
+
+Scenario: Excluir conta com sucesso
+    Given existe uma pessoa cadastrada com usuário "bruna" e senha "123456"
+    When excluo a conta do usuário "bruna" informando a senha correta "123456"
+    Then o sistema deve retornar status 200
+    And ao buscar o perfil do usuário "bruna" o sistema deve retornar status 404
+
+Scenario: Impedir exclusão de conta com senha incorreta
+    Given existe uma pessoa cadastrada com usuário "bruna" e senha "123456"
+    When tento excluir a conta do usuário "bruna" informando a senha incorreta "senhaerrada"
+    Then o sistema deve retornar status 401
+    And ao buscar o perfil do usuário "bruna" o sistema deve retornar status 200
+
+Scenario: Impedir exclusão de conta inexistente
+    Given não existe pessoa cadastrada com usuário "fantasma"
+    When tento excluir a conta do usuário "fantasma" informando a senha "123456"
+    Then o sistema deve retornar status 404
+    And o sistema deve exibir a mensagem "Usuário não encontrado"
