@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.user import UserProfileUpdateRequest
 from app.services.user_service import UserService
+from app.schemas.user import UserProfileUpdateRequest, UserDeleteRequest
 
 
 router = APIRouter(
@@ -62,3 +63,29 @@ def get_profile(
     service = UserService(db)
 
     return service.get_profile(usuario)
+
+
+@router.delete(
+    "/profile/{usuario}",
+    status_code=status.HTTP_200_OK,
+    summary="Excluir conta do usuário",
+    response_description="Conta excluída com sucesso",
+)
+def delete_profile(
+    usuario: str,
+    data: UserDeleteRequest,
+    db: Session = Depends(get_db),
+) -> dict:
+    """
+    Exclui a conta de um usuário.
+
+    Para confirmar a exclusão, a senha do usuário
+    deve ser enviada no corpo da requisição.
+    """
+
+    service = UserService(db)
+
+    return service.delete_profile(
+        usuario,
+        data.senha,
+    )

@@ -106,3 +106,22 @@ class UserRepository:
         self._db.refresh(pessoa)
 
         return pessoa
+    
+    def delete_by_usuario(self, usuario: str) -> bool:
+        """
+        Remove uma pessoa do banco pelo nome de usuário.
+
+        Retorna:
+            bool: True se a pessoa foi encontrada e removida,
+                False se não existir.
+        """
+
+        pessoa = self.find_by_usuario(usuario)
+
+        if not pessoa:
+            return False
+
+        self._db.delete(pessoa)
+        self._db.commit()
+
+        return True

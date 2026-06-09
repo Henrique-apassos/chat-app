@@ -4,6 +4,9 @@ from sqlalchemy.orm import Session
 from app.repositories.user_repository import UserRepository
 from app.schemas.user import UserProfileUpdateRequest
 
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class UserService:
     """
@@ -16,6 +19,10 @@ class UserService:
 
     def __init__(self, db: Session):
         self.repo = UserRepository(db)
+
+    def _verificar_senha(self, senha_pura: str, senha_hash: str) -> bool:
+        """Verifica se a senha pura corresponde ao hash armazenado."""
+        return pwd_context.verify(senha_pura, senha_hash)
 
     def update_profile(self, data: UserProfileUpdateRequest) -> dict:
         """
@@ -111,4 +118,45 @@ class UserService:
             "sobrenome": pessoa.sobrenome,
             "biografia": pessoa.biografia,
             "caminho_foto": pessoa.caminho_foto,
+        }
+    
+    def delete_profile(
+    self,
+    usuario: str,
+    senha: str,
+    ) -> dict:
+        """
+        Fluxo de exclusão de conta:
+
+        1. Busca o usuário pelo nome de usuário.
+        2. Verifica se o usuário existe.
+        3. Verifica se a senha informada corresponde à senha cadastrada.
+        4. Remove a conta do banco.
+        5. Retorna mensagem de sucesso.
+
+        Retorna:
+            dict: mensagem de confirmação.
+        """
+
+        pessoa = self.repo.find_by_usuario(usuario)
+
+        if not pessoa:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Usuário não encontrado",
+            )
+
+        if not self._verificar_senha(
+            senha,
+            pessoa.senha,
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Senha incorreta",
+            )
+
+        self.repo.delete_by_usuario(usuario)
+
+        return {
+            "message": "Conta excluída com sucesso"
         }

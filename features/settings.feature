@@ -42,11 +42,24 @@ Scenario: Buscar perfil de usuário inexistente
     And o sistema deve exibir a mensagem "Usuário não encontrado"
 
 Scenario: Excluir conta com sucesso
-    Given existe uma pessoa cadastrada com usuário "bruna"
-    When excluo a conta do usuário "bruna"
+    Given existe uma pessoa cadastrada com usuário "bruna" e senha "123456"
+    When excluo a conta do usuário "bruna" informando a senha correta "123456"
     Then o sistema deve retornar status 200
     And o sistema deve exibir a mensagem "Conta excluída com sucesso"
     And ao buscar o perfil do usuário "bruna" o sistema deve retornar status 404
+
+Scenario: Impedir exclusão de conta com senha incorreta
+    Given existe uma pessoa cadastrada com usuário "bruna" e senha "123456"
+    When tento excluir a conta do usuário "bruna" informando a senha incorreta "senhaerrada"
+    Then o sistema deve retornar status 401
+    And o sistema deve exibir a mensagem "Senha incorreta"
+    And ao buscar o perfil do usuário "bruna" o sistema deve retornar status 200
+
+Scenario: Impedir exclusão de conta inexistente
+    Given não existe pessoa cadastrada com usuário "fantasma"
+    When tento excluir a conta do usuário "fantasma" informando a senha "123456"
+    Then o sistema deve retornar status 404
+    And o sistema deve exibir a mensagem "Usuário não encontrado"
 
 Scenario: Validar biografia com no máximo 300 caracteres
     Given existe uma pessoa cadastrada com usuário "bruna"

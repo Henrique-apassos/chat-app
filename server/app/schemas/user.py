@@ -65,3 +65,13 @@ class UserProfileUpdateRequest(BaseModel):
             raise ValueError("A biografia deve ter no máximo 300 caracteres")
         
         return value
+    
+class UserDeleteRequest(BaseModel):
+    """
+    Dados esperados para confirmação da exclusão da conta.
+
+    A senha informada deve corresponder à senha
+    cadastrada para o usuário que está sendo excluído.
+    """
+
+    senha: str
