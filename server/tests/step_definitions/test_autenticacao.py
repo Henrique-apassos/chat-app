@@ -12,6 +12,13 @@ def test_login_com_senha_incorreta():
     pass
 
 
+@scenario('autenticacao.feature', 'Login com e-mail inexistente')
+def test_login_email_inexistente():
+    pass
+
+
+# ── Given ─────────────────────────────────────────────────────────────────────
+
 @given(parsers.parse('o usuário "{email}" com senha "{senha}" está registrado no sistema'))
 def usuario_registrado_no_sistema(client, email, senha):
     response = client.post('/auth/register', json={
@@ -39,80 +46,64 @@ def usuario_possui_contatos(email, contato1, contato2):
     contacts_store.user_contacts[email] = [contato1, contato2]
 
 
-@given(parsers.parse('estou na tela de "{tela}" do sistema'))
-def estou_na_tela_do_sistema(tela):
+@given('o sistema não possui nenhum usuário cadastrado')
+def sistema_sem_usuarios():
+    """Garantido pelo fixture setup_database que limpa o banco antes de cada teste."""
     pass
 
 
-@given('não estou logado no sistema')
-def nao_estou_logado():
-    pass
+# ── When ──────────────────────────────────────────────────────────────────────
 
-
-@when(parsers.parse('informo e-mail "{email}" e senha "{senha}"'))
-def informo_email_e_senha(context, email, senha):
-    context['email'] = email
-    context['senha'] = senha
-
-
-@when(parsers.parse('clico no botão "{botao}"'))
-def clico_no_botao_entrar(client, context, botao):
+@when(parsers.parse('envio uma requisição de login com e-mail "{email}" e senha "{senha}"'))
+def envio_requisicao_login(client, context, email, senha):
     response = client.post('/auth/login', json={
-        'email': context.get('email', ''),
-        'senha': context.get('senha', ''),
+        'email': email,
+        'senha': senha,
     })
     context['response'] = response
 
 
-@then(parsers.parse('o sistema exibe mensagem de boas-vindas "{mensagem}"'))
-def sistema_exibe_boas_vindas(context, mensagem):
-    response = context['response']
-    assert response.status_code == 200
-    assert response.json().get('welcome_message') == mensagem
+# ── Then ──────────────────────────────────────────────────────────────────────
+
+@then(parsers.parse('o sistema retorna status {status:d}'))
+def sistema_retorna_status(context, status):
+    assert context['response'].status_code == status
 
 
-@then(parsers.parse('eu vejo o contato "{contato}" na lista'))
-def eu_vejo_contato_na_lista(context, contato):
-    contacts = context['response'].json().get('contacts', [])
-    assert contato in contacts
+@then(parsers.parse('o corpo da resposta contém o erro "{erro}"'))
+def corpo_contem_erro(context, erro):
+    assert context['response'].json().get('detail') == erro
 
 
-@then('o sistema me mantém logado por um tempo determinado')
-def sistema_mantem_logado(context):
-    body = context['response'].json()
-    assert 'access_token' in body
-    assert body.get('expires_in', 0) > 0
+@then('o corpo da resposta contém um token de acesso')
+def corpo_contem_token(context):
+    assert 'access_token' in context['response'].json()
 
 
-@then('o sistema deve impedir o acesso')
-def sistema_impede_acesso(context):
-    assert context['response'].status_code == 401
+@then('o corpo da resposta contém expires_in positivo')
+def corpo_contem_expires_in(context):
+    assert context['response'].json().get('expires_in', 0) > 0
 
 
-@then(parsers.parse('exibir mensagem "{mensagem}"'))
-def exibir_mensagem(context, mensagem):
-    assert context['response'].json().get('detail') == mensagem
+@then(parsers.parse('o corpo da resposta contém a mensagem de boas-vindas "{mensagem}"'))
+def corpo_contem_boas_vindas(context, mensagem):
+    assert context['response'].json().get('welcome_message') == mensagem
 
 
-@then(parsers.parse('o sistema NÃO me mantém logado como "{email}"'))
-def sistema_nao_mantem_logado(context, email):
+@then(parsers.parse('o corpo da resposta contém o contato "{contato}" na lista'))
+def corpo_contem_contato(context, contato):
+    assert contato in context['response'].json().get('contacts', [])
+
+
+@then('o corpo da resposta não contém token de acesso')
+def corpo_nao_contem_token(context):
     assert 'access_token' not in context['response'].json()
 
 
-@then(parsers.parse('o usuário "{email}" permanece com senha "{senha}" inalterada'))
-def usuario_permanece_com_senha(client, email, senha):
+@then(parsers.parse('o usuário "{email}" ainda consegue autenticar com a senha "{senha}"'))
+def usuario_ainda_autentica(client, email, senha):
     response = client.post('/auth/login', json={
         'email': email,
         'senha': senha,
     })
     assert response.status_code == 200
-
-@scenario('autenticacao.feature', 'Login com e-mail inexistente')
-def test_login_email_inexistente():
-    pass
-
-
-@given('o sistema não possui nenhum usuário cadastrado')
-def sistema_sem_usuarios():
-    """Garantido pelo fixture setup_database que limpa o banco antes de cada teste."""
-    pass

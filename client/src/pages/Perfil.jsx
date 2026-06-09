@@ -369,6 +369,7 @@ async function handleExcluirConta() {
               />
 
               {errosCampos.novo_usuario && (
+               
                 <p data-cy="erro-usuario" className="text-red-600 text-xs mb-3 -mt-2">
                     {errosCampos.novo_usuario}
                 </p>
