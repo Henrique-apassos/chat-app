@@ -42,3 +42,26 @@ class TokenResponse(BaseModel):
     expires_in: int
     welcome_message: str = ""
     contacts: list = []
+
+class UserProfileUpdateRequest(BaseModel):
+    usuario: str
+
+    novo_usuario: str | None = None
+    nome: str | None = None
+    sobrenome: str | None = None
+    email: EmailStr | None = None
+    telefone: str | None = None
+    biografia: str | None = None
+    caminho_foto: str | None = None
+
+    @field_validator("biografia")
+    @classmethod
+    def biografia_maxima(cls, value: str | None):
+
+        if value is None: 
+            return value
+        
+        if len(value) > 300:
+            raise ValueError("A biografia deve ter no máximo 300 caracteres")
+        
+        return value
