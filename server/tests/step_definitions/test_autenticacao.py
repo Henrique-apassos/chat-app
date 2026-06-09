@@ -15,7 +15,7 @@ def test_login_com_senha_incorreta():
 @given(parsers.parse('o usuário "{email}" com senha "{senha}" está registrado no sistema'))
 def usuario_registrado_no_sistema(client, email, senha):
     response = client.post('/auth/register', json={
-        'nome_usuario': email.split('@')[0],
+        'usuario': email.split('@')[0],
         'email': email,
         'telefone': '(88) 988888888',
         'senha': senha,
@@ -26,7 +26,7 @@ def usuario_registrado_no_sistema(client, email, senha):
 @given(parsers.parse('o usuário "{email}" com senha "{senha}" está cadastrado'))
 def usuario_cadastrado(client, email, senha):
     response = client.post('/auth/register', json={
-        'nome_usuario': email.split('@')[0],
+        'usuario': email.split('@')[0],
         'email': email,
         'telefone': '(88) 988888888',
         'senha': senha,

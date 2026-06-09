@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.database import Base, get_db
 from main import app
+from app import database
 import app.contacts_store as contacts_store
 
 TEST_DATABASE_URL = "sqlite:///./test_chatapp.db"
@@ -14,6 +15,8 @@ engine_test = create_engine(
     connect_args={"check_same_thread": False},
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine_test)
+
+database.SessionLocal = TestingSessionLocal
 
 
 def override_get_db():

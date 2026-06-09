@@ -36,3 +36,22 @@ Feature: Cadastro de Usuários
     And insiro senha "abc"
     And clico no botão "Cadastre-se"
     Then o sistema rejeita o cadastro com erro de validação
+
+    Scenario: Cadastro com nome de usuário já existente
+    Given estou na tela de cadastro
+    And o sistema já possui usuário com e-mail "existente@email.com", nome "UsuarioExistente" e senha "Senha@123"
+    When eu insiro e-mail "novo@email.com"
+    And eu insiro nome de usuário "UsuarioExistente"
+    And eu insiro senha "Segura@123"
+    And eu clico no botão "Cadastre-se"
+    Then o sistema exibe mensagem de alerta "Nome de usuário já cadastrado"
+
+  Scenario: Cadastro com senha de exatamente 6 caracteres
+    Given estou na tela de cadastro
+    And o sistema não possui usuário com e-mail "joao@email.com"
+    When insiro e-mail "joao@email.com"
+    And insiro telefone "(88) 988888888"
+    And insiro nome de usuário "joaosilva"
+    And insiro senha "Seis12"
+    And clico no botão "Cadastre-se"
+    Then o sistema exibe mensagem "Cadastro realizado com sucesso"
