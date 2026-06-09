@@ -11,6 +11,10 @@ from app.models.recebe import RecebeModel
 from app.models.grupo import GrupoModel
 from app.core.ws_manager import gerenciador 
 
+
+from pydantic import BaseModel
+from fastapi import HTTPException 
+
 router = APIRouter(
     tags=["Chat Realtime"]
 )
@@ -97,8 +101,80 @@ def obter_historico_mensagens(remetente: str, destinatario: str, db: Session = D
     lista_mensagens = []
     for msg in historico:
         lista_mensagens.append({
+            "id_mensagem": msg.id_mensagem,
             "remetente": msg.usuario,
             "texto": msg.texto
         })
 
     return lista_mensagens
+
+# ROTA EDIÇÃO DE MENSAGEM  
+
+class EditarMensagemRequest(BaseModel):
+    usuario: str
+    novo_texto: str
+
+@router.put("/mensagens/{id_mensagem}")
+def editar_mensagem(
+    id_mensagem: int,
+    dados: EditarMensagemRequest,
+    db: Session = Depends(get_db)
+):
+    mensagem = db.query(MensagemModel).filter(
+        MensagemModel.id_mensagem == id_mensagem
+    ).first()
+
+    if not mensagem:
+        raise HTTPException(status_code=404, detail="Mensagem não encontrada")
+
+    if mensagem.usuario != dados.usuario:
+        raise HTTPException(status_code=403, detail="Usuário não autorizado a editar esta mensagem")
+
+    mensagem.texto = dados.novo_texto
+    db.commit()
+    db.refresh(mensagem)
+
+    return {
+        "mensagem": "Mensagem editada com sucesso",
+        "id_mensagem": mensagem.id_mensagem,
+        "texto": mensagem.texto,
+        "editada": True
+    }
+
+
+# ROTA EDIÇÃO DE MENSAGEM
+
+class ExcluirMensagemRequest(BaseModel):
+    usuario: str
+
+@router.delete("/mensagens/{id_mensagem}")
+def excluir_mensagem(
+    id_mensagem: int,
+    dados: ExcluirMensagemRequest,
+    db: Session = Depends(get_db)
+):
+    mensagem = db.query(MensagemModel).filter(
+        MensagemModel.id_mensagem == id_mensagem
+    ).first()
+
+    if not mensagem:
+        raise HTTPException(status_code=404, detail="Mensagem não encontrada")
+
+    if mensagem.usuario != dados.usuario:
+        raise HTTPException(status_code=403, detail="Usuário não autorizado a excluir esta mensagem")
+
+    recebimentos = db.query(RecebeModel).filter(
+        RecebeModel.id_mensagem == id_mensagem
+    ).all()
+
+    for recebimento in recebimentos:
+        db.delete(recebimento)
+
+    db.delete(mensagem)
+    db.commit()
+
+    return {
+        "mensagem": "Mensagem excluída com sucesso",
+        "id_mensagem": id_mensagem
+    }
+
