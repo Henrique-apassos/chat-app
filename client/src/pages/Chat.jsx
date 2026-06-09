@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Perfil from './Perfil'
 
 export default function Chat() {
+    const navigate = useNavigate();
+
     // Quem sou eu? (Pega o usuário salvo no localStorage durante o Login)
     const [usuarioLogado] = useState(localStorage.getItem('usuario') || 'usuario_teste');
 
@@ -9,6 +13,7 @@ export default function Chat() {
     const [contatoAtivo, setContatoAtivo] = useState(null); // Com quem estou falando
     const [mensagem, setMensagem] = useState('');           // O texto do input
     const [historico, setHistorico] = useState([]);         // As mensagens na tela
+    const [perfilAberto, setPerfilAberto] = useState(false)
 
     const ws = useRef(null);
     const fimDoChatRef = useRef(null);
@@ -136,12 +141,31 @@ export default function Chat() {
 
     // A Interface da Tela
     return (
+        <>
         <div style={{ display: 'flex', height: '100vh', fontFamily: 'sans-serif' }}>
 
             {/* BARRA LATERAL */}
             <div style={{ width: '300px', borderRight: '1px solid #ccc', backgroundColor: '#f9f9f9', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ padding: '20px', borderBottom: '1px solid #ddd', backgroundColor: '#e2e2e2' }}>
-                    <strong>Logado como:</strong> <br /> {usuarioLogado}
+                    <strong>Logado como:</strong> <br /> 
+                    <span>{usuarioLogado}</span>
+
+                    <button
+                        onClick={() => setPerfilAberto(true)}
+                        style={{
+                            marginTop: '12px',
+                            width: '100%',
+                            padding: '10px',
+                            borderRadius: '20px',
+                            border: 'none',
+                            backgroundColor: '#0E49B5',
+                            color: '#fff',
+                            fontWeight: 'bold',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        ⚙️ Configurações
+                    </button>
                 </div>
 
                 <h3 style={{ padding: '10px 20px', margin: 0 }}>Contatos</h3>
@@ -213,7 +237,23 @@ export default function Chat() {
                     </div>
                 )}
             </div>
-
+            
         </div>
+
+        {perfilAberto && (
+            <div style={{
+                position: 'fixed',
+                inset: 0,
+                backgroundColor: 'rgba(6, 6, 93, 0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 9999
+            }}>
+                <Perfil onClose={() => setPerfilAberto(false)} />
+            </div>
+        )}
+
+        </>
     );
 }
