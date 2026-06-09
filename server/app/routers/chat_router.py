@@ -142,7 +142,7 @@ def editar_mensagem(
     }
 
 
-# ROTA EDIÇÃO DE MENSAGEM
+# ROTA EXCLUSÃO DE MENSAGEM
 
 class ExcluirMensagemRequest(BaseModel):
     usuario: str
