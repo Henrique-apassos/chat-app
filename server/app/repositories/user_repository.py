@@ -28,6 +28,14 @@ class UserRepository:
             .first()
         )
 
+    def find_by_telefone(self, telefone: str) -> UserModel | None:
+        """Busca uma pessoa pelo telefone. Retorna None se não existir."""
+        return (
+            self._db.query(UserModel)
+            .filter(UserModel.telefone == telefone)
+            .first()
+        )
+
     def create(
         self,
         usuario: str,

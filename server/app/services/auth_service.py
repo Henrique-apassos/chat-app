@@ -69,9 +69,10 @@ class AuthService:
         Fluxo de cadastro:
         1. Verifica duplicidade de e-mail → 409 se existir
         2. Verifica duplicidade de usuario → 409 se existir
-        3. Gera hash da senha (nunca salva a senha pura)
-        4. Persiste no banco
-        5. Retorna mensagem de sucesso
+        3. Verifica duplicidade de telefone → 409 se existir
+        4. Gera hash da senha (nunca salva a senha pura)
+        5. Persiste no banco
+        6. Retorna mensagem de sucesso
         """
         if self.repo.find_by_email(data.email):
             raise HTTPException(
@@ -83,6 +84,12 @@ class AuthService:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Nome de usuário já cadastrado",
+            )
+
+        if self.repo.find_by_telefone(data.telefone):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Telefone já cadastrado",
             )
 
         self.repo.create(
