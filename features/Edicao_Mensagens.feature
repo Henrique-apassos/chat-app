@@ -16,4 +16,4 @@ Feature: Edição de Mensagens
     And existe uma mensagem enviada por "João"
     When tento editar essa mensagem 
     Then o sistema deve impedir a edição
-    And a mensagem deve permanecer sem alteração 
+    And a mensagem deve permanecer sem alteração
