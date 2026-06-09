@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import Perfil from './Perfil'
 import MensagemItem from '../components/MensagemItem'; //importar componente de Edição e Exclusao de msg
 
-
 export default function Chat() {
     const navigate = useNavigate();
 
@@ -211,6 +210,7 @@ export default function Chat() {
                     <span>{usuarioLogado}</span>
 
                     <button
+                        data-cy="btn-configuracoes"
                         onClick={() => setPerfilAberto(true)}
                         style={{
                             marginTop: '12px',
