@@ -1,9 +1,9 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, HTTPException
 from datetime import datetime
 import json
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
-
+from pydantic import BaseModel
 
 from app import database
 from app.models.mensagem import MensagemModel
@@ -11,15 +11,12 @@ from app.models.recebe import RecebeModel
 from app.models.grupo import GrupoModel
 from app.core.ws_manager import gerenciador 
 
-
-from pydantic import BaseModel
-from fastapi import HTTPException 
-
 router = APIRouter(
     tags=["Chat Realtime"]
 )
 
-#  O MOTOR DO WEBSOCKET
+
+# O MOTOR DO WEBSOCKET
 @router.websocket("/ws/{nome_usuario}")
 async def endpoint_websocket(websocket: WebSocket, nome_usuario: str):
     await gerenciador.conectar(websocket)
@@ -53,19 +50,32 @@ async def endpoint_websocket(websocket: WebSocket, nome_usuario: str):
                 db.add(nova_mensagem)
                 db.commit()
                 db.refresh(nova_mensagem) # Atualiza para pegar o ID gerado automaticamente
+                
+                # Lemos e guardamos o ID enquanto a conexão com o banco ainda está aberta!
+                id_gerado = nova_mensagem.id_mensagem
 
                 # Salva na tabela 'recebe' (Grava quem recebeu vinculando ao ID da mensagem)
                 if destinatario_str:
                     novo_recebimento = RecebeModel(
                         usuario=destinatario_str, # Destinatário
-                        id_mensagem=nova_mensagem.id_mensagem,
+                        id_mensagem=id_gerado,    # Usamos a variável segura aqui
                         lida=0
                     )
                     db.add(novo_recebimento)
                     db.commit()
             
-            mensagem_formatada = json.dumps({"remetente": nome_usuario, "texto": texto_limpo})
+            # Fora do 'with', a sessão fechou. Mas a nossa variável 'id_gerado' está a salvo!
+            mensagem_formatada = json.dumps({
+                "id_mensagem": id_gerado, 
+                "remetente": nome_usuario, 
+                "texto": texto_limpo
+            })
+            
+            # 1. Envia a mensagem para o destinatário através do gestor
             await gerenciador.enviar_mensagem(mensagem_formatada, remetente=websocket)
+            
+            # 2. Devolve a confirmação para o próprio emissor ver a mensagem com o ID correto na sua interface
+            await websocket.send_text(mensagem_formatada)
             
     except WebSocketDisconnect:
         gerenciador.desconectar(websocket)
@@ -85,7 +95,6 @@ def obter_historico_mensagens(remetente: str, destinatario: str, db: Session = D
     """
     Busca o histórico fazendo um JOIN entre a tabela 'mensagem' e a 'recebe'
     """
-    # Junta as duas tabelas para saber quem enviou e quem recebeu a mesma mensagem
     historico = db.query(MensagemModel).join(
         RecebeModel, MensagemModel.id_mensagem == RecebeModel.id_mensagem
     ).filter(
@@ -109,7 +118,6 @@ def obter_historico_mensagens(remetente: str, destinatario: str, db: Session = D
     return lista_mensagens
 
 # ROTA EDIÇÃO DE MENSAGEM  
-
 class EditarMensagemRequest(BaseModel):
     usuario: str
     novo_texto: str
@@ -143,7 +151,6 @@ def editar_mensagem(
 
 
 # ROTA EXCLUSÃO DE MENSAGEM
-
 class ExcluirMensagemRequest(BaseModel):
     usuario: str
 
@@ -177,4 +184,3 @@ def excluir_mensagem(
         "mensagem": "Mensagem excluída com sucesso",
         "id_mensagem": id_mensagem
     }
-

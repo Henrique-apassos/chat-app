@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Perfil from './Perfil'
-import MensagemItem from '../components/MensagemItem'; //importar componente de Edição e Exclusao de msg
+import Perfil from './Perfil';
+import MensagemItem from '../components/MensagemItem';
 
 export default function Chat() {
     const navigate = useNavigate();
@@ -10,11 +10,11 @@ export default function Chat() {
     const [usuarioLogado] = useState(localStorage.getItem('usuario') || 'usuario_teste');
 
     // Estados da Interface
-    const [contatos, setContatos] = useState([]);           // Lista da barra lateral
-    const [contatoAtivo, setContatoAtivo] = useState(null); // Com quem estou falando
-    const [mensagem, setMensagem] = useState('');           // O texto do input
-    const [historico, setHistorico] = useState([]);         // As mensagens na tela
-    const [perfilAberto, setPerfilAberto] = useState(false)
+    const [contatos, setContatos] = useState([]);           
+    const [contatoAtivo, setContatoAtivo] = useState(null); 
+    const [mensagem, setMensagem] = useState('');           
+    const [historico, setHistorico] = useState([]);         
+    const [perfilAberto, setPerfilAberto] = useState(false);
 
     const ws = useRef(null);
     const fimDoChatRef = useRef(null);
@@ -23,7 +23,6 @@ export default function Chat() {
     useEffect(() => {
         const buscarContatos = async () => {
             try {
-                // Faz a requisição direta para a rota de usuários que criamos no FastAPI
                 const resposta = await fetch('http://127.0.0.1:8000/auth/usuarios');
 
                 if (resposta.ok) {
@@ -34,8 +33,6 @@ export default function Chat() {
                 }
             } catch (error) {
                 console.error("Erro ao carregar os contatos reais:", error);
-
-                // Mock de teste (Plano B) 
                 setContatos([
                     { usuario: 'maria', nome: 'Maria Silva' },
                     { usuario: 'joao', nome: 'João Pedro' },
@@ -51,40 +48,26 @@ export default function Chat() {
     useEffect(() => {
         if (!usuarioLogado) return;
 
-        // Conecta no backend enviando o nome do usuário na URL
         ws.current = new WebSocket(`ws://127.0.0.1:8000/ws/${usuarioLogado}`);
-
         ws.current.onopen = () => console.log("WebSocket Conectado como:", usuarioLogado);
 
         ws.current.onmessage = (event) => {
-            let textoFinal = event.data;
-
             try {
-                const stringCorrigida = event.data.replace(/'/g, '"');
+                // O backend agora manda um JSON perfeito com o ID real!
+                const pacote = JSON.parse(event.data);
 
-
-                const pacote = JSON.parse(stringCorrigida);
-
-                if (typeof pacote === 'object' && pacote !== null) {
-                    textoFinal = pacote.texto || pacote.mensagem || pacote.msg || pacote.content || stringCorrigida;
+                if (pacote.texto) {
+                    setHistorico((prev) => [...prev, {
+                        id_mensagem: pacote.id_mensagem,
+                        texto: pacote.texto,
+                        remetente: pacote.remetente 
+                    }]);
                 }
-
             } catch (e) {
-                const regex = /['"]?(?:texto|mensagem|msg|content)['"]?\s*:\s*['"](.*?)['"](?:}|$|,)/i;
-                const match = event.data.match(regex);
-
-                if (match && match[1]) {
-                    textoFinal = match[1];
-                }
+                console.error("Erro ao ler mensagem do websocket:", e);
             }
-
-            // NOVA FORMATAÇÃO: Adiciona a mensagem recebida como Objeto
-            setHistorico((prev) => [...prev, {
-                id_mensagem: Date.now(), // ID provisório gerado pelo navegador
-                texto: textoFinal,
-                remetente: contatoAtivo?.usuario || contatoAtivo?.email
-            }]);
         };
+        
         return () => ws.current?.close();
     }, [usuarioLogado]);
 
@@ -102,16 +85,15 @@ export default function Chat() {
                 setHistorico([]);
 
                 const destinatario = contatoAtivo.usuario || contatoAtivo.email;
-                if (!destinatario) return; // Trava de segurança para evitar erro 405
+                if (!destinatario) return; 
 
                 const resposta = await fetch(`http://127.0.0.1:8000/mensagens/${usuarioLogado}/${destinatario}`);
 
                 if (resposta.ok) {
                     const mensagensAntigas = await resposta.json();
 
-                    // Converte os dados do backend para Objetos
                     const historicoFormatado = mensagensAntigas.map(msg => ({
-                        id_mensagem: msg.id_mensagem, // Garantindo que o ID do backend venha para o React
+                        id_mensagem: msg.id_mensagem, 
                         texto: msg.texto,
                         remetente: msg.remetente,
                         editada: msg.editada || false
@@ -136,26 +118,12 @@ export default function Chat() {
             texto: mensagem
         };
 
+        // Envia para o servidor. O WebSocket se encarregará de colocar na tela com o ID real!
         ws.current.send(JSON.stringify(pacote));
-
-
-        setHistorico((prev) => [...prev, {
-            id_mensagem: Date.now(), // ID provisório gerado pelo navegador
-            texto: mensagem,
-            remetente: usuarioLogado
-        }]);
         setMensagem('');
     };
 
-    // Função responsável por editar uma mensagem já existente.
-    // Primeiro solicita ao usuário o novo texto da mensagem.
-    // Em seguida envia uma requisição PUT para o backend,
-    // informando o ID da mensagem, o usuário que está editando
-    // e o novo conteúdo.
-    // Caso a operação seja concluída com sucesso,
-    // atualizamos o estado local do React para refletir
-    // imediatamente a alteração na interface.
-
+    // Função responsável por editar uma mensagem
     const editarMensagem = async (msg) => {
         const novoTexto = prompt("Novo texto da mensagem:", msg.texto);
         if (!novoTexto) return;
@@ -166,55 +134,6 @@ export default function Chat() {
             body: JSON.stringify({
                 usuario: usuarioLogado,
                 novo_texto: novoTexto
-        })
-    });
-
-        if (resposta.ok) {
-            setHistorico((prev) =>
-                prev.map((m) =>
-                    m.id_mensagem === msg.id_mensagem
-                        ? { ...m, texto: novoTexto, editada: true }
-                        : m
-                )
-            );
-        }
-    };
-
-    // Função responsável por excluir uma mensagem.
-    // Envia uma requisição DELETE para o backend
-    // informando o ID da mensagem e o usuário que
-    // está solicitando a exclusão.
-    // Caso a operação seja autorizada e concluída,
-    // a mensagem é removida do estado local para que
-    // desapareça imediatamente da interface.
-    const excluirMensagem = async (msg) => {
-        const resposta = await fetch(`http://127.0.0.1:8000/mensagens/${msg.id_mensagem}`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                usuario: usuarioLogado
-            })
-        });
-
-        if (resposta.ok) {
-            setHistorico((prev) =>
-                prev.filter((m) => m.id_mensagem !== msg.id_mensagem)
-            );
-        }
-    };
-
-
-
-    // A Interface da Tela
-    return (
-        <div style={{ display: 'flex', height: '100vh', fontFamily: 'sans-serif' }}>
-
-        const resposta = await fetch(`http://127.0.0.1:8000/mensagens/${msg.id_mensagem}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                usuario: usuarioLogado,
-                novo_texto: novoTexto
             })
         });
 
@@ -229,7 +148,7 @@ export default function Chat() {
         }
     };
 
-    // Função responsável por excluir uma mensagem.
+    // Função responsável por excluir uma mensagem
     const excluirMensagem = async (msg) => {
         const resposta = await fetch(`http://127.0.0.1:8000/mensagens/${msg.id_mensagem}`, {
             method: "DELETE",
@@ -357,7 +276,6 @@ export default function Chat() {
                     <Perfil onClose={() => setPerfilAberto(false)} />
                 </div>
             )}
-
         </>
     );
 }
