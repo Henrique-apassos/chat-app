@@ -24,17 +24,41 @@ export default function MensagemItem({ msg, usuarioLogado, onEditar, onExcluir }
       </span>
 
       {minhaMensagem && (
-        <div style={{ marginTop: '4px' }}>
+        <div style={{
+          marginTop: '6px',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          gap: '6px',
+          fontSize: '0.85em',
+          fontWeight: 'bold'
+        }}>
           <button
             data-cy="btn-editar-mensagem"
             onClick={() => onEditar(msg)}
+            style={{
+              border: 'none',
+              background: 'transparent',
+              color: '#007bff', // Azul
+              cursor: 'pointer',
+              padding: 0
+            }}
           >
             Editar
           </button>
 
+          <span style={{ color: '#aaa', fontWeight: 'normal' }}>|</span>
+
           <button
             data-cy="btn-excluir-mensagem"
             onClick={() => onExcluir(msg)}
+            style={{
+              border: 'none',
+              background: 'transparent',
+              color: '#dc3545', // Vermelho
+              cursor: 'pointer',
+              padding: 0
+            }}
           >
             Excluir
           </button>

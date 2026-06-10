@@ -6,27 +6,24 @@ Feature: Autenticação de Usuários
   Scenario: Login com credenciais válidas
     Given o usuário "joao@email.com" com senha "Segura@123" está registrado no sistema
     And o usuário "joao@email.com" possui os contatos "maria@email.com" e "pedro@email.com"
-    And estou na tela de "Login" do sistema
-    And não estou logado no sistema
-    When informo e-mail "joao@email.com" e senha "Segura@123"
-    And clico no botão "Entrar"
-    Then o sistema exibe mensagem de boas-vindas "Bem-vindo, joao@email.com"
-    And eu vejo o contato "maria@email.com" na lista
-    And eu vejo o contato "pedro@email.com" na lista
-    And o sistema me mantém logado por um tempo determinado
+    When envio uma requisição de login com e-mail "joao@email.com" e senha "Segura@123"
+    Then o sistema retorna status 200
+    And o corpo da resposta contém um token de acesso
+    And o corpo da resposta contém expires_in positivo
+    And o corpo da resposta contém a mensagem de boas-vindas "Bem-vindo, joao@email.com"
+    And o corpo da resposta contém o contato "maria@email.com" na lista
+    And o corpo da resposta contém o contato "pedro@email.com" na lista
 
   Scenario: Login com senha incorreta
     Given o usuário "joao@email.com" com senha "Segura@123" está cadastrado
-    When informo e-mail "joao@email.com" e senha "Errada456"
-    And clico no botão "Entrar"
-    Then o sistema deve impedir o acesso
-    And exibir mensagem "Credenciais inválidas"
-    And o sistema NÃO me mantém logado como "joao@email.com"
-    And o usuário "joao@email.com" permanece com senha "Segura@123" inalterada
+    When envio uma requisição de login com e-mail "joao@email.com" e senha "Errada456"
+    Then o sistema retorna status 401
+    And o corpo da resposta contém o erro "Credenciais inválidas"
+    And o corpo da resposta não contém token de acesso
+    And o usuário "joao@email.com" ainda consegue autenticar com a senha "Segura@123"
 
-    Scenario: Login com e-mail inexistente
+  Scenario: Login com e-mail inexistente
     Given o sistema não possui nenhum usuário cadastrado
-    When informo e-mail "fantasma@email.com" e senha "qualquer123"
-    And clico no botão "Entrar"
-    Then o sistema deve impedir o acesso
-    And exibir mensagem "Credenciais inválidas"
+    When envio uma requisição de login com e-mail "fantasma@email.com" e senha "qualquer123"
+    Then o sistema retorna status 401
+    And o corpo da resposta contém o erro "Credenciais inválidas"
