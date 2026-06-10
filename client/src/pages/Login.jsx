@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login } from '../services/api'
 import FormCard from '../components/FormCard'
+import { API_URL } from '../services/api'
 
 export default function Login({ embedded = false }) {
   const navigate = useNavigate()
@@ -26,7 +27,7 @@ export default function Login({ embedded = false }) {
         
         // Bate na rota /me para pegar o nome de usuário real
         try {
-          const meResponse = await fetch('http://127.0.0.1:8000/auth/me', {
+          const meResponse = await fetch(`${API_URL}/auth/me`, {
             headers: { 'Authorization': `Bearer ${data.access_token}` }
           })
 

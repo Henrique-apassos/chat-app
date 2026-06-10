@@ -1,4 +1,9 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+// Descobre o IP de quem acessou a página
+const HOST = window.location.hostname;
+
+// Monta as URLs base do backend
+export const API_URL = `http://${HOST}:8000`;
+export const WS_URL = `ws://${HOST}:8000`;
 
 export async function cadastrar(dados) {
   const response = await fetch(`${API_URL}/auth/register`, {

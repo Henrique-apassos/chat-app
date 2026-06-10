@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Perfil from './Perfil';
 import MensagemItem from '../components/MensagemItem';
+import { API_URL, WS_URL } from '../services/api';
 
 export default function Chat() {
     const navigate = useNavigate();
@@ -23,7 +24,7 @@ export default function Chat() {
     useEffect(() => {
         const buscarContatos = async () => {
             try {
-                const resposta = await fetch('http://127.0.0.1:8000/auth/usuarios');
+                const resposta = await fetch(`${API_URL}/auth/usuarios`);
 
                 if (resposta.ok) {
                     const dados = await resposta.json();
@@ -48,7 +49,7 @@ export default function Chat() {
     useEffect(() => {
         if (!usuarioLogado) return;
 
-        ws.current = new WebSocket(`ws://127.0.0.1:8000/ws/${usuarioLogado}`);
+        ws.current = new WebSocket(`${WS_URL}/ws/${usuarioLogado}`);
         ws.current.onopen = () => console.log("WebSocket Conectado como:", usuarioLogado);
 
         ws.current.onmessage = (event) => {
@@ -87,7 +88,7 @@ export default function Chat() {
                 const destinatario = contatoAtivo.usuario || contatoAtivo.email;
                 if (!destinatario) return; 
 
-                const resposta = await fetch(`http://127.0.0.1:8000/mensagens/${usuarioLogado}/${destinatario}`);
+                const resposta = await fetch(`${API_URL}0/mensagens/${usuarioLogado}/${destinatario}`);
 
                 if (resposta.ok) {
                     const mensagensAntigas = await resposta.json();
@@ -128,7 +129,7 @@ export default function Chat() {
         const novoTexto = prompt("Novo texto da mensagem:", msg.texto);
         if (!novoTexto) return;
 
-        const resposta = await fetch(`http://127.0.0.1:8000/mensagens/${msg.id_mensagem}`, {
+        const resposta = await fetch(`${API_URL}/mensagens/${msg.id_mensagem}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -150,7 +151,7 @@ export default function Chat() {
 
     // Função responsável por excluir uma mensagem
     const excluirMensagem = async (msg) => {
-        const resposta = await fetch(`http://127.0.0.1:8000/mensagens/${msg.id_mensagem}`, {
+        const resposta = await fetch(`${API_URL}/mensagens/${msg.id_mensagem}`, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
