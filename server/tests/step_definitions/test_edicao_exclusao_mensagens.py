@@ -11,27 +11,27 @@ from main import app
 # MAPEAMENTO DOS CENÁRIOS
 # ==========================================
 
-@scenario(r'C:\Users\nicol\chat-app\features\Edicao_Mensagens.feature', 'Edição de mensagem própria')
+@scenario('Edicao_Mensagens.feature', 'Edição de mensagem própria')
 def test_edicao_mensagem_propria():
     pass
 
 
-@scenario(r'C:\Users\nicol\chat-app\features\Edicao_Mensagens.feature', 'Tentativa de editar mensagem de outro usuário')
+@scenario('Edicao_Mensagens.feature', 'Tentativa de editar mensagem de outro usuário')
 def test_tentativa_editar_mensagem_de_outro_usuario():
     pass
 
 
-@scenario(r'C:\Users\nicol\chat-app\features\Exclusao_de_Mensagem.feature', 'Exclusão de mensagem própria')
+@scenario('Exclusao_de_Mensagem.feature', 'Exclusão de mensagem própria')
 def test_exclusao_mensagem_propria():
     pass
 
 
-@scenario(r'C:\Users\nicol\chat-app\features\Exclusao_de_Mensagem.feature', 'Tentativa de excluir mensagem de outro usuário')
+@scenario('Exclusao_de_Mensagem.feature', 'Tentativa de excluir mensagem de outro usuário')
 def test_tentativa_excluir_mensagem_de_outro_usuario():
     pass
 
 
-@scenario(r'C:\Users\nicol\chat-app\features\Exclusao_de_Mensagem.feature', 'Atualização da conversa após exclusão de mensagem')
+@scenario('Exclusao_de_Mensagem.feature', 'Atualização da conversa após exclusão de mensagem')
 def test_atualizacao_conversa_apos_exclusao():
     pass
 
