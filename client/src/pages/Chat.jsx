@@ -201,6 +201,7 @@ export default function Chat() {
                         {contatos.map((contato, index) => (
                             <li
                                 key={index}
+                                data-cy={`contato-${contato.usuario || contato.email}`}
                                 onClick={() => setContatoAtivo(contato)}
                                 style={{
                                     padding: '15px 20px',
@@ -240,6 +241,7 @@ export default function Chat() {
 
                             <div style={{ padding: '20px', backgroundColor: '#f0f0f0', display: 'flex' }}>
                                 <input
+                                    data-cy="input-mensagem"
                                     type="text"
                                     value={mensagem}
                                     onChange={(e) => setMensagem(e.target.value)}
@@ -248,6 +250,8 @@ export default function Chat() {
                                     style={{ flex: 1, padding: '15px', borderRadius: '8px', border: '1px solid #ccc', marginRight: '10px', outline: 'none' }}
                                 />
                                 <button
+                                    data-cy="btn-enviar"
+                                    disabled={!mensagem.trim()} // (Faz o teste do campo vazio passar)
                                     onClick={enviarMensagem}
                                     style={{ padding: '0 25px', borderRadius: '8px', border: 'none', backgroundColor: '#007bff', color: '#fff', cursor: 'pointer', fontWeight: 'bold' }}
                                 >

@@ -18,9 +18,10 @@ export default function MensagemItem({ msg, usuarioLogado, onEditar, onExcluir }
           boxShadow: '0 1px 1px rgba(0,0,0,0.1)'
         }}
       >
-        {minhaMensagem ? '[Você]: ' : '[Recebido]: '}
+        {minhaMensagem ? 'Você: ' : `${msg.remetente}: `}
         {msg.texto}
         {msg.editada && ' (editada)'}
+        {minhaMensagem && <small style={{display: 'block', color: '#888'}}>Enviada</small>}
       </span>
 
       {minhaMensagem && (
