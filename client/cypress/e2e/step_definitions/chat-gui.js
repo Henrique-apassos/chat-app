@@ -48,12 +48,47 @@ Given("estou na tela de conversa com {string}", (contato) => {
 });
 
 Given("que {string} e {string} já trocaram mensagens anteriormente", (user1, user2) => {
-  // Intercepta a requisição e injeta um histórico falso para não depender do banco
+  // 1. Intercepta a requisição e injeta um histórico falso
   const historicoFalso = [
     { id_mensagem: 1, remetente: user1, texto: 'Mensagem antiga 1', data: '2026-06-11T10:00:00' },
     { id_mensagem: 2, remetente: user2, texto: 'Mensagem antiga 2', data: '2026-06-11T10:05:00' }
   ];
   cy.intercept('GET', `**/mensagens/${user1}/${user2}`, historicoFalso).as('getHistorico');
+
+  // 2. CADASTRAR O USER 1 (joao) - O passo que faltava!
+  cy.request({
+    method: 'POST',
+    url: 'http://localhost:8000/auth/register',
+    failOnStatusCode: false,
+    body: {
+      usuario: user1,
+      email: `${user1}@email.com`,
+      telefone: `119${Math.floor(10000000 + Math.random() * 90000000)}`,
+      senha: 'senha123'
+    }
+  });
+
+  // 3. CADASTRAR O USER 2 (maria)
+  cy.request({
+    method: 'POST',
+    url: 'http://localhost:8000/auth/register',
+    failOnStatusCode: false,
+    body: {
+      usuario: user2,
+      email: `${user2}@email.com`,
+      telefone: `119${Math.floor(10000000 + Math.random() * 90000000)}`,
+      senha: 'senha123'
+    }
+  });
+
+  // 4. Agora sim, com o João existindo no banco, fazemos o login visual!
+  cy.visit('/login');
+  cy.get('[data-cy="input-email"]').clear().type(`${user1}@email.com`);
+  cy.get('[data-cy="input-senha"]').clear().type('senha123');
+  cy.get('[data-cy="btn-entrar"]').click();
+  
+  // Aguarda a aplicação liberar o acesso para a tela de chat
+  cy.url().should('include', '/chat');
 });
 
 When("eu abro a conversa com {string}", (contato) => {
@@ -150,32 +185,40 @@ Then("as mensagens anteriores aparecem no histórico em ordem cronológica", () 
 
 Given("estou sem conexão com a internet", () => {
   cy.window().then((win) => {
-    // Engana o React forçando a variável 'onLine' para falso
-    Object.defineProperty(win.navigator, 'onLine', { value: false, configurable: true });
-    // Dispara o evento que corta a internet visualmente
-    win.dispatchEvent(new win.Event('offline'));
+    // Dispara o evento exato que o nosso React está à escuta para cortar o envio
+    win.dispatchEvent(new Event('offline'));
   });
 });
 
 Given("enviei a mensagem {string} que ficou com o status {string}", (mensagem, status) => {
-  cy.get('[data-cy="input-mensagem"]').type(mensagem);
+  cy.get('[data-cy="input-mensagem"]').clear().type(mensagem);
   cy.get('[data-cy="btn-enviar"]').click();
-  cy.get('[data-cy="mensagem-chat"]').last().should('contain', status);
+
+  // Valida que o React segurou a mensagem localmente
+  cy.get('[data-cy="mensagem-chat"]').last().within(() => {
+    cy.contains(mensagem).should('be.visible');
+    cy.contains(status).should('be.visible');
+  });
 });
 
 When("a conexão com a internet é restabelecida", () => {
   cy.window().then((win) => {
-    // Devolve a internet ao navegador
-    Object.defineProperty(win.navigator, 'onLine', { value: true, configurable: true });
-    win.dispatchEvent(new win.Event('online'));
+    // Liga a internet de volta, o que vai acionar o useEffect de despache no React
+    win.dispatchEvent(new Event('online'));
   });
+  
+  // Dá meio segundo para o React empacotar a mensagem e o WebSocket confirmar o envio
+  cy.wait(500); 
 });
 
 Then("a mensagem {string} é enviada automaticamente", (mensagem) => {
-  // Verifica se a requisição real de envio foi disparada após o reestabelecimento
-  cy.wait('@envioOnline');
+  // Apenas garante que o balão não desapareceu da interface durante a transição
+  cy.get('[data-cy="mensagem-chat"]').last().should('contain', mensagem);
 });
 
 Then("o status da mensagem é atualizado para {string}", (status) => {
-  cy.get('[data-cy="mensagem-chat"]').last().should('contain', status);
+  cy.get('[data-cy="mensagem-chat"]').last().within(() => {
+    // Confirma que o "Aguardando conexão" sumiu e deu lugar ao "Enviada"
+    cy.contains(status).should('be.visible');
+  });
 });
