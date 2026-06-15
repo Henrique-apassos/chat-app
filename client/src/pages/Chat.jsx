@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Perfil from './Perfil';
+import Perfil from '../components/Perfil';
 import { Sidebar } from '../components/Sidebar';
 import { ChatHeader } from '../components/ChatHeader';
 import { AreaMensagens } from '../components/AreaMensagens';

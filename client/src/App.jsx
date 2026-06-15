@@ -4,7 +4,7 @@ import Login from './pages/Login'
 import Cadastro from './pages/Cadastro'
 import CadastroSucesso from './pages/CadastroSucesso'
 import Chat from './pages/Chat'
-import Perfil from './pages/Perfil'
+import Perfil from './components/Perfil'
 
 export default function App() {
   return (
