@@ -1,32 +1,30 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Perfil from './Perfil';
 import { Sidebar } from '../components/Sidebar';
 import { ChatHeader } from '../components/ChatHeader';
 import { AreaMensagens } from '../components/AreaMensagens';
 import { ChatInput } from '../components/ChatInput';
-
-// Importação dos seus Hooks de Negócio
 import { useContatos } from '../hooks/useContatos';
 import { useChatMotor } from '../hooks/useChatMotor';
 import { useMobile } from '../hooks/useMobile';
 
 export default function Chat() {
-    // Estados Simples da Interface
     const [usuarioLogado] = useState(localStorage.getItem('usuario') || 'usuario_teste');
     const [contatoAtivo, setContatoAtivo] = useState(null);
     const [perfilAberto, setPerfilAberto] = useState(false);
 
-    // Regras de Negócio (Consumindo os seus Hooks)
     const contatos = useContatos();
     const {
         historico,
         isOnline,
+        erroEnvio,
+        presencas,
+        presencaContato,
         enviarMensagem,
         editarMensagem,
         excluirMensagem
     } = useChatMotor(usuarioLogado, contatoAtivo);
 
-    // Ajuste para celular
     const isMobile = useMobile();
     const mostrarSidebar = !isMobile || (isMobile && !contatoAtivo);
     const mostrarChat = !isMobile || (isMobile && contatoAtivo);
@@ -39,6 +37,7 @@ export default function Chat() {
                         usuarioLogado={usuarioLogado}
                         contatos={contatos}
                         contatoAtivo={contatoAtivo}
+                        presencas={presencas}
                         onSelectContato={setContatoAtivo}
                         onOpenPerfil={() => setPerfilAberto(true)}
                         isMobile={isMobile}
@@ -50,8 +49,9 @@ export default function Chat() {
                             <>
                                 <ChatHeader
                                     contatoAtivo={contatoAtivo}
+                                    presencaContato={presencaContato}
                                     isMobile={isMobile}
-                                    onVoltar={() => setContatoAtivo(null)} // Botão para fechar o chat no celula
+                                    onVoltar={() => setContatoAtivo(null)}
                                 />
 
                                 <AreaMensagens
@@ -61,6 +61,21 @@ export default function Chat() {
                                     onExcluir={excluirMensagem}
                                 />
 
+                                {erroEnvio && (
+                                    <div
+                                        data-cy="alerta-envio"
+                                        style={{
+                                            padding: '10px 20px',
+                                            backgroundColor: '#fff4d6',
+                                            color: '#6d5200',
+                                            borderTop: '1px solid #ead18a',
+                                            fontSize: '0.9rem'
+                                        }}
+                                    >
+                                        {erroEnvio}
+                                    </div>
+                                )}
+
                                 <ChatInput
                                     isOnline={isOnline}
                                     onEnviar={enviarMensagem}
@@ -68,7 +83,6 @@ export default function Chat() {
                                 />
                             </>
                         ) : (
-                            // Esta mensagem agora só aparece no Desktop
                             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f4f4f4' }}>
                                 <h2 style={{ color: '#888' }}>Clique em um contato na barra lateral para iniciar</h2>
                             </div>
@@ -76,7 +90,6 @@ export default function Chat() {
                     </div>
                 )}
             </div>
-            {/* ... Modal do Perfil ... */}
             {perfilAberto && (
                 <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(6, 6, 93, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
                     <Perfil onClose={() => setPerfilAberto(false)} />

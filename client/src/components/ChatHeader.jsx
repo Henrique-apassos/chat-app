@@ -1,21 +1,16 @@
-import React from 'react';
-
-export function ChatHeader({ contatoAtivo, isMobile, onVoltar }) {
-    // Se, por algum motivo de renderização, o componente for chamado sem um contato, 
-    // ele retorna null para evitar quebrar a tela (Fail-fast)
+export function ChatHeader({ contatoAtivo, isMobile, onVoltar, presencaContato }) {
     if (!contatoAtivo) return null;
 
     return (
-        <div style={{ 
-            padding: '20px', 
-            borderBottom: '1px solid #ccc', 
+        <div style={{
+            padding: '16px 20px',
+            borderBottom: '1px solid #ccc',
             backgroundColor: '#fff',
             display: 'flex',
             alignItems: 'center'
-        }}> 
-            {/* Renderiza o botão "Voltar" apenas em dispositivos móveis */}
+        }}>
             {isMobile && (
-                <button 
+                <button
                     onClick={onVoltar}
                     style={{
                         marginRight: '15px',
@@ -27,13 +22,28 @@ export function ChatHeader({ contatoAtivo, isMobile, onVoltar }) {
                         fontWeight: 'bold'
                     }}
                 >
-                    ⬅ Voltar
+                    Voltar
                 </button>
             )}
 
-            <h2 style={{ margin: 0, color: '#333' }}>
-                {contatoAtivo.nome || contatoAtivo.usuario || contatoAtivo.email}
-            </h2>
+            <div style={{ minWidth: 0 }}>
+                <h2 style={{ margin: 0, color: '#333', fontSize: '1.25rem' }}>
+                    {contatoAtivo.nome || contatoAtivo.usuario || contatoAtivo.email}
+                </h2>
+                <small
+                    data-cy="status-presenca-contato"
+                    style={{
+                        display: 'block',
+                        color: presencaContato?.online ? '#16803c' : '#666',
+                        marginTop: '3px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                    }}
+                >
+                    {presencaContato?.texto || 'Visto por último indisponível'}
+                </small>
+            </div>
         </div>
     );
 }

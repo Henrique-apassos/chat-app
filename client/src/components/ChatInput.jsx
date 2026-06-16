@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export function ChatInput({ onEnviar, isMobile }) {
     // O estado da mensagem agora vive apenas aqui dentro
