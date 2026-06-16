@@ -15,7 +15,6 @@ export default function Perfil({ onClose }) {
     })
 
     const [usuarioAtual, setUsuarioAtual] = useState('')
-    const [mensagem, setMensagem] = useState('')
     const [erro, setErro] = useState('')
     const [carregando, setCarregando] = useState(true)
     const [errosCampos, setErrosCampos] = useState({})
@@ -98,39 +97,12 @@ function handleChange(e) {
   const { name, value } = e.target
 
   setForm({ ...form, [name]: value })
-  setMensagem('')
   setErro('')
 
   setErrosCampos({
     ...errosCampos,
     [name]: '',
   })
-}
-
-async function handleSalvar() {
-  const dados = {
-    usuario: usuarioAtual,
-    novo_usuario: form.novo_usuario,
-    nome: form.nome,
-    sobrenome: form.sobrenome,
-    telefone: form.telefone,
-    email: form.email,
-    biografia: form.biografia,
-  }
-
-  const response = await atualizarPerfil(dados)
-  const data = await response.json()
-
-  if (response.ok) {
-    setMensagem('Perfil atualizado com sucesso')
-
-    if (form.novo_usuario !== usuarioAtual) {
-      localStorage.setItem('usuario', form.novo_usuario)
-      setUsuarioAtual(form.novo_usuario)
-    }
-  } else {
-    setErro(data.detail || 'Erro ao atualizar perfil')
-  }
 }
 
 function tratarErroCampo(data) {
