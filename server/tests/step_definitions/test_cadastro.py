@@ -16,23 +16,25 @@ def test_cadastro_senha_curta():
     pass
 
 
-@given('estou na tela de cadastro')
-def estou_na_tela_de_cadastro():
+@scenario('registration_access.feature', 'Cadastro com nome de usuário já existente')
+def test_cadastro_usuario_duplicado():
     pass
 
 
-@given(parsers.parse('estou na tela de "{tela}"'))
-def estou_na_tela_de(tela):
+@scenario('registration_access.feature', 'Cadastro com senha de exatamente 6 caracteres')
+def test_cadastro_senha_limite_exato():
+    pass
+
+
+# ── Given ─────────────────────────────────────────────────────────────────────
+
+@given('a rota POST /auth/register está disponível')
+def rota_disponivel():
     pass
 
 
 @given(parsers.parse('o sistema não possui usuário com e-mail "{email}"'))
 def sistema_nao_possui_email(email):
-    pass
-
-
-@given(parsers.parse('o sistema NÃO possui usuário com e-mail "{email}"'))
-def sistema_nao_possui_email_upper(email):
     pass
 
 
@@ -54,71 +56,50 @@ def sistema_ja_possui_usuario(client, context, email, nome_usuario, senha):
     }
 
 
-@when(parsers.parse('insiro e-mail "{email}"'))
-def insiro_email(context, email):
-    context['email'] = email
+# ── When ──────────────────────────────────────────────────────────────────────
 
-
-@when(parsers.parse('insiro telefone "{telefone}"'))
-def insiro_telefone(context, telefone):
-    context['telefone'] = telefone
-
-
-@when(parsers.parse('insiro nome de usuário "{nome_usuario}"'))
-def insiro_nome_usuario(context, nome_usuario):
-    context['nome_usuario'] = nome_usuario
-
-
-@when(parsers.parse('insiro senha "{senha}"'))
-def insiro_senha(context, senha):
-    context['senha'] = senha
-
-
-@when(parsers.parse('clico no botão "{botao}"'))
-def clico_no_botao_cadastrese(client, context, botao):
+@when(parsers.parse(
+    'envio uma requisição de cadastro com e-mail "{email}", usuario "{usuario}", telefone "{telefone}" e senha "{senha}"'
+))
+def envio_requisicao_cadastro_completo(client, context, email, usuario, telefone, senha):
     response = client.post('/auth/register', json={
-        'usuario': context.get('nome_usuario', ''),
-        'email': context.get('email', ''),
-        'telefone': context.get('telefone', '(00) 000000000'),
-        'senha': context.get('senha', ''),
+        'usuario': usuario,
+        'email': email,
+        'telefone': telefone,
+        'senha': senha,
+    })
+    print("\n>>> BODY RESPOSTA:", response.json())
+    context['response'] = response
+
+
+@when(parsers.parse(
+    'envio uma requisição de cadastro com e-mail "{email}", usuario "{usuario}" e senha "{senha}"'
+))
+def envio_requisicao_cadastro_simples(client, context, email, usuario, senha):
+    response = client.post('/auth/register', json={
+        'usuario': usuario,
+        'email': email,
+        'telefone': '(00) 000000000',
+        'senha': senha,
     })
     context['response'] = response
 
 
-@when(parsers.parse('eu insiro e-mail "{email}"'))
-def eu_insiro_email(context, email):
-    context['email'] = email
+# ── Then ──────────────────────────────────────────────────────────────────────
+
+@then(parsers.parse('o sistema retorna status {status:d}'))
+def sistema_retorna_status(context, status):
+    assert context['response'].status_code == status
 
 
-@when(parsers.parse('eu insiro nome de usuário "{nome_usuario}"'))
-def eu_insiro_nome(context, nome_usuario):
-    context['nome_usuario'] = nome_usuario
-
-
-@when(parsers.parse('eu insiro senha "{senha}"'))
-def eu_insiro_senha(context, senha):
-    context['senha'] = senha
-
-
-@when(parsers.parse('eu clico no botão "{botao}"'))
-def eu_clico_no_botao(client, context, botao):
-    response = client.post('/auth/register', json={
-        'usuario': context.get('nome_usuario', ''),
-        'email': context.get('email', ''),
-        'telefone': context.get('telefone', '(00) 000000000'),
-        'senha': context.get('senha', ''),
-    })
-    context['response'] = response
-
-
-@then(parsers.parse('o sistema exibe mensagem "{mensagem}"'))
-def sistema_exibe_mensagem(context, mensagem):
+@then(parsers.parse('o corpo da resposta contém a mensagem "{mensagem}"'))
+def corpo_contem_mensagem(context, mensagem):
     assert context['response'].json().get('message') == mensagem
 
 
-@then('me redireciona para tela de login')
-def me_redireciona_para_login(context):
-    assert context['response'].status_code == 201
+@then(parsers.parse('o corpo da resposta contém o erro "{erro}"'))
+def corpo_contem_erro(context, erro):
+    assert context['response'].json().get('detail') == erro
 
 
 @then(parsers.parse('o sistema passa a ter usuário "{usuario}" com e-mail "{email}"'))
@@ -130,17 +111,6 @@ def sistema_tem_usuario(client, usuario, email):
     assert response.status_code == 401
 
 
-@then(parsers.parse('o sistema exibe mensagem de alerta "{mensagem}"'))
-def sistema_exibe_mensagem_alerta(context, mensagem):
-    assert context['response'].status_code == 409
-    assert context['response'].json().get('detail') == mensagem
-
-
-@then(parsers.parse('eu continuo na tela "{tela}"'))
-def eu_continuo_na_tela(context, tela):
-    assert context['response'].status_code != 201
-
-
 @then(parsers.parse('o sistema mantém o usuário "{nome_usuario}" com e-mail "{email}" inalterado'))
 def sistema_mantem_usuario_inalterado(client, context, nome_usuario, email):
     senha_original = context.get('usuario_existente', {}).get('senha', '')
@@ -149,17 +119,3 @@ def sistema_mantem_usuario_inalterado(client, context, nome_usuario, email):
         'senha': senha_original,
     })
     assert response.status_code == 200
-
-
-@then('o sistema rejeita o cadastro com erro de validação')
-def sistema_rejeita_senha_curta(context):
-    assert context['response'].status_code == 422
-
-@scenario('registration_access.feature', 'Cadastro com nome de usuário já existente')
-def test_cadastro_usuario_duplicado():
-    pass
-
-
-@scenario('registration_access.feature', 'Cadastro com senha de exatamente 6 caracteres')
-def test_cadastro_senha_limite_exato():
-    pass

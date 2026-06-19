@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.schemas.user import TokenResponse, UserLoginRequest, UserRegisterRequest
 from app.services.auth_service import AuthService
+from app.core.security import get_usuario_atual
 from app.models.user import UserModel
 
 router = APIRouter(
@@ -87,3 +88,26 @@ def listar_todos_os_usuarios(db: Session = Depends(get_db)):
         })
         
     return lista_contatos
+
+@router.get("/me", status_code=status.HTTP_200_OK, summary="Obter dados do usuário logado")
+def get_me(
+    usuario_no_token: str = Depends(get_usuario_atual), 
+    db: Session = Depends(get_db)
+):
+    """
+    Retorna os dados completos do usuário que é dono do token atual.
+    Esta rota resolve a identidade real do frontend.
+    """
+    usuario_db = db.query(UserModel).filter(UserModel.usuario == usuario_no_token).first()
+    
+    if not usuario_db:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Usuário não encontrado no banco de dados."
+        )
+        
+    return {
+        "usuario": usuario_db.usuario,
+        "nome": usuario_db.nome,
+        "email": usuario_db.email
+    }

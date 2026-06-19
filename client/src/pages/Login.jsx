@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login } from '../services/api'
 import FormCard from '../components/FormCard'
+import { API_URL } from '../services/api'
 
 export default function Login({ embedded = false }) {
   const navigate = useNavigate()
@@ -26,7 +27,7 @@ export default function Login({ embedded = false }) {
         
         // Bate na rota /me para pegar o nome de usuário real
         try {
-          const meResponse = await fetch('http://127.0.0.1:8000/auth/me', {
+          const meResponse = await fetch(`${API_URL}/auth/me`, {
             headers: { 'Authorization': `Bearer ${data.access_token}` }
           })
 
@@ -34,13 +35,9 @@ export default function Login({ embedded = false }) {
             const meData = await meResponse.json()
             // Salva o nome_usuario real que veio do banco de dados!
             localStorage.setItem('usuario', meData.nome_usuario || meData.usuario)
-          } else {
-            // Se falhar, usa a primeira parte do email como plano B
-            localStorage.setItem('usuario', form.email.split('@')[0])
           }
         } catch (error) {
           console.error("Erro ao buscar dados do usuário", error)
-          localStorage.setItem('usuario', form.email.split('@')[0])
         }
         navigate('/chat')
       }

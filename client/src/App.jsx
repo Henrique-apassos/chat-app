@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Cadastro from './pages/Cadastro'
 import CadastroSucesso from './pages/CadastroSucesso'
 import Chat from './pages/Chat'
+import Perfil from './components/Perfil'
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/cadastro" element={<Cadastro />} />
         <Route path="/cadastro-sucesso" element={<CadastroSucesso />} />
         <Route path='/chat' element={<Chat/>} />
+        <Route path="/perfil" element={<Perfil />} />
       </Routes>
     </BrowserRouter>
   )

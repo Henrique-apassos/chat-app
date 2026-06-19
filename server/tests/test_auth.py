@@ -9,7 +9,7 @@ class TestCadastroDeUsuarios:
 
     PESSOA_VALIDA = {
         "email": "joao@email.com",
-        "nome_de_usuario": "joaosilva",
+        "usuario": "joaosilva",
         "telefone": "(88) 988888888",
         "senha": "Segura@123",
     }
@@ -62,7 +62,7 @@ class TestAutenticacaoDeUsuarios:
 
     PESSOA_REGISTRADA = {
         "email": "joao@email.com",
-        "nome_de_usuario": "joaosilva",
+        "usuario": "joaosilva",
         "telefone": "(88) 988888888",
         "senha": "Segura@123",
     }
