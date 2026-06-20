@@ -1,6 +1,6 @@
 export default function BadgeNotificacao({ quantidade }) {
   if (!quantidade || quantidade === 0) return null;
-  
+
   return (
     <span
       data-cy="badge-notificacao"

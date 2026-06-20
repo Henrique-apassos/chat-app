@@ -15,6 +15,9 @@ export async function consultarBadges() {
     if (response.status === 503) {
       throw new Error('Serviço temporariamente indisponível');
     }
+    if (response.status === 401) {
+      return {};
+    }
     throw new Error('Erro ao consultar notificações');
   }
   
@@ -22,8 +25,8 @@ export async function consultarBadges() {
 }
 
 export async function marcarComoLidas(contato) {
-  const token = localStorage.getItem('token');
   const usuario = localStorage.getItem('usuario');
+  const token = localStorage.getItem('token');
   const headers = token 
     ? { 'Authorization': `Bearer ${token}` } 
     : {};

@@ -1,5 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
-import { consultarBadges, marcarComoLidas, exibirNotificacaoPush } from '../services/notifications';
+import { 
+  consultarBadges, 
+  marcarComoLidas, 
+  exibirNotificacaoPush 
+} from '../services/notifications';
 
 export function useNotificacoes(usuarioLogado, contatoAtivo) {
   const [badges, setBadges] = useState({});
@@ -22,7 +26,7 @@ export function useNotificacoes(usuarioLogado, contatoAtivo) {
     };
 
     consultar();
-    const intervalo = setInterval(consultar, 30000); // A cada 30 segundos
+    const intervalo = setInterval(consultar, 30000);
     return () => clearInterval(intervalo);
   }, [usuarioLogado]);
 
@@ -48,7 +52,7 @@ export function useNotificacoes(usuarioLogado, contatoAtivo) {
     }
   }, []);
 
-  // Exibir notificação push
+  // Notificação push nativa
   const notificarPush = useCallback((remetente, texto) => {
     if (document.hidden) {
       exibirNotificacaoPush(remetente, texto);
