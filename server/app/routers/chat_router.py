@@ -273,7 +273,6 @@ async def marcar_conversa_como_lida(
 ):
     por_remetente = _marcar_lidas(db, leitor=usuario, remetente=contato)
     await _notificar_status(por_remetente, STATUS_LIDO)
-
     ids_mensagens = [
         id_mensagem
         for ids_do_remetente in por_remetente.values()
