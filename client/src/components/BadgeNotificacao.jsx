@@ -1,43 +1,23 @@
-export default function BannerNotificacao({ bannerAtivo, onFechar }) {
-  if (!bannerAtivo) return null;
+export default function BadgeNotificacao({ quantidade }) {
+  if (!quantidade || quantidade === 0) return null;
 
   return (
-    <div
-      data-cy="banner-notificacao"
+    <span
+      data-cy="badge-notificacao"
       style={{
-        position: 'fixed',
-        top: '20px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        backgroundColor: '#007bff',
+        backgroundColor: '#ff3b30',
         color: '#fff',
-        padding: '15px 25px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        zIndex: 9999,
-        maxWidth: '400px',
-        animation: 'slideDown 0.3s ease-out'
+        borderRadius: '10px',
+        padding: '2px 8px',
+        fontSize: '0.75rem',
+        fontWeight: 'bold',
+        marginLeft: '8px',
+        minWidth: '20px',
+        textAlign: 'center',
+        display: 'inline-block'
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <strong>{bannerAtivo.remetente}:</strong> {bannerAtivo.texto}
-        </div>
-        <button
-          onClick={onFechar}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: '#fff',
-            fontSize: '1.2rem',
-            cursor: 'pointer',
-            marginLeft: '15px',
-            padding: 0
-          }}
-        >
-          ×
-        </button>
-      </div>
-    </div>
+      {quantidade > 99 ? '99+' : quantidade}
+    </span>
   );
 }

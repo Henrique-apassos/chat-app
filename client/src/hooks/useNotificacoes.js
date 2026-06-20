@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { API_URL } from '../services/api';
+import { consultarBadges, marcarComoLidas, exibirNotificacaoPush } from '../services/notifications';
 
 export function useNotificacoes(usuarioLogado, contatoAtivo) {
   const [badges, setBadges] = useState({});
@@ -10,29 +10,9 @@ export function useNotificacoes(usuarioLogado, contatoAtivo) {
   useEffect(() => {
     if (!usuarioLogado) return;
 
-    const consultarBadges = async () => {
+    const consultar = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const headers = token
-          ? { 'Authorization': `Bearer ${token}` }
-          : {};
-
-        const resposta = await fetch(`${API_URL}/api/v1/notifications/badges`, {
-          method: 'GET',
-          headers
-        });
-
-        if (!resposta.ok) {
-          if (resposta.status === 503) {
-            setErroConexao(true);
-            return;
-          }
-          // Se não autenticado (401), apenas ignora
-          if (resposta.status === 401) return;
-          throw new Error('Erro ao consultar badges');
-        }
-
-        const dados = await resposta.json();
+        const dados = await consultarBadges();
         setBadges(dados);
         setErroConexao(false);
       } catch (erro) {
@@ -41,43 +21,37 @@ export function useNotificacoes(usuarioLogado, contatoAtivo) {
       }
     };
 
-    consultarBadges();
-    const intervalo = setInterval(consultarBadges, 30000); // A cada 30s
+    consultar();
+    const intervalo = setInterval(consultar, 30000); // A cada 30 segundos
     return () => clearInterval(intervalo);
   }, [usuarioLogado]);
 
   // Exibir banner quando mensagem chega
   const exibirBanner = useCallback((remetente, texto) => {
     setBannerAtivo({ remetente, texto });
-    setTimeout(() => setBannerAtivo(null), 4000);
+    setTimeout(() => {
+      setBannerAtivo(null);
+    }, 4000);
   }, []);
 
   // Zerar badge ao abrir conversa
   const zerarBadge = useCallback(async (contato) => {
     try {
-      const resposta = await fetch(
-        `${API_URL}/mensagens/${usuarioLogado}/${contato}/lidas`,
-        { method: 'POST' }
-      );
-      if (!resposta.ok) return;
-
+      await marcarComoLidas(contato);
       setBadges(prev => {
-        const novos = { ...prev };
-        delete novos[contato];
-        return novos;
+        const novosBadges = { ...prev };
+        delete novosBadges[contato];
+        return novosBadges;
       });
     } catch (erro) {
       console.error('Erro ao zerar badge:', erro);
     }
-  }, [usuarioLogado]);
+  }, []);
 
-  // Notificação push nativa do navegador
+  // Exibir notificação push
   const notificarPush = useCallback((remetente, texto) => {
-    if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
-      new Notification(`Nova mensagem de ${remetente}`, {
-        body: texto,
-        icon: '/favicon.svg'
-      });
+    if (document.hidden) {
+      exibirNotificacaoPush(remetente, texto);
     }
   }, []);
 
@@ -87,6 +61,6 @@ export function useNotificacoes(usuarioLogado, contatoAtivo) {
     erroConexao,
     exibirBanner,
     zerarBadge,
-    notificarPush
+    notificarPush,
   };
 }
