@@ -15,10 +15,6 @@ def consultar_badges(
     usuario_atual: str = Depends(get_usuario_atual),
     db: Session = Depends(get_db),
 ):
-    """
-    Retorna contagem de mensagens não lidas por remetente.
-    Endpoint protegido por JWT - identifica o usuário pelo token.
-    """
     badges = (
         db.query(MensagemModel.usuario, db.func.count(MensagemModel.id_mensagem))
         .join(RecebeModel, MensagemModel.id_mensagem == RecebeModel.id_mensagem)

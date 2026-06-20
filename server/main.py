@@ -23,7 +23,7 @@ app.include_router(auth_router.router)
 app.include_router(chat_router.router)
 app.include_router(user_router.router)
 app.include_router(conversas_router.router)
-app.include_router(notifications_router.router)  # ← NOVA LINHA
+app.include_router(notifications_router.router)
 
 @app.get("/health", tags=["Status"])
 def health_check():
