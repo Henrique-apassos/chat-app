@@ -12,7 +12,6 @@ router = APIRouter(
     tags=["Autenticação"],
 )
 
-
 @router.post(
     "/register",
     status_code=status.HTTP_201_CREATED,
@@ -65,8 +64,12 @@ def login(
 def cleanup(db: Session = Depends(get_db)) -> dict:
     """Endpoint exclusivo para testes — remove todos os usuários do banco."""
     from app.models.user import UserModel
+    from app.models.mensagem import MensagemModel
+    from app.models.recebe import RecebeModel
     import os
     if os.getenv("ENVIRONMENT") != "production":
+        db.query(RecebeModel).delete()
+        db.query(MensagemModel).delete()
         db.query(UserModel).delete()
         db.commit()
         return {"message": "Banco limpo com sucesso"}
@@ -76,10 +79,8 @@ def listar_todos_os_usuarios(db: Session = Depends(get_db)):
     """
     Busca todos os usuários cadastrados no banco para preencher a barra lateral do chat.
     """
-    # Busca todo mundo na tabela
     usuarios_db = db.query(UserModel).all()
     
-    # Monta uma lista limpa só com o que o frontend precisa (evitando enviar senhas!)
     lista_contatos = []
     for user in usuarios_db:
         lista_contatos.append({
