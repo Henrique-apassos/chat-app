@@ -55,9 +55,24 @@ export function solicitarPermissaoNotificacoes() {
 
 export function exibirNotificacaoPush(remetente, texto) {
   if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification(`Nova mensagem de ${remetente}`, {
+    const notificacao = new Notification(`Nova mensagem de ${remetente}`, {
       body: texto,
       icon: '/favicon.svg',
     });
+
+    notificacao.onclick = () => {
+      window.focus();
+      notificacao.close();
+    };
   }
+}
+
+export function tocarSomNotificacao(remetente) {
+  const sonsCustomizados = JSON.parse(localStorage.getItem('sons_customizados') || '{}');
+  const somUrl = sonsCustomizados[remetente] || '/sounds/notification.mp3';
+
+  const audio = new Audio(somUrl);
+  audio.play().catch(e => {
+    console.warn('Áudio bloqueado pelo navegador. É necessário interagir com a tela antes.', e);
+  });
 }

@@ -2,7 +2,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { 
   consultarBadges, 
   marcarComoLidas, 
-  exibirNotificacaoPush 
+  exibirNotificacaoPush,
+  tocarSomNotificacao
 } from '../services/notifications';
 
 export function useNotificacoes(usuarioLogado, contatoAtivo) {
@@ -30,7 +31,16 @@ export function useNotificacoes(usuarioLogado, contatoAtivo) {
     return () => clearInterval(intervalo);
   }, [usuarioLogado]);
 
-  // Exibir banner quando mensagem chega
+  // Atualiza o título da aba do navegador (Cenário do Feature)
+  useEffect(() => {
+    const totalNaoLidas = Object.values(badges).reduce((sum, val) => sum + val, 0);
+    if (totalNaoLidas > 0) {
+      document.title = `(${totalNaoLidas}) Chapp`;
+    } else {
+      document.title = 'Chapp';
+    }
+  }, [badges]);
+
   const exibirBanner = useCallback((remetente, texto) => {
     setBannerAtivo({ remetente, texto });
     setTimeout(() => {
@@ -38,7 +48,6 @@ export function useNotificacoes(usuarioLogado, contatoAtivo) {
     }, 4000);
   }, []);
 
-  // Zerar badge ao abrir conversa
   const zerarBadge = useCallback(async (contato) => {
     try {
       await marcarComoLidas(contato);
@@ -52,11 +61,12 @@ export function useNotificacoes(usuarioLogado, contatoAtivo) {
     }
   }, []);
 
-  // Notificação push nativa
-  const notificarPush = useCallback((remetente, texto) => {
+  // Notifica visualmente (Push) e com áudio
+  const notificarPushESom = useCallback((remetente, texto) => {
     if (document.hidden) {
       exibirNotificacaoPush(remetente, texto);
     }
+    tocarSomNotificacao(remetente);
   }, []);
 
   return {
@@ -65,6 +75,6 @@ export function useNotificacoes(usuarioLogado, contatoAtivo) {
     erroConexao,
     exibirBanner,
     zerarBadge,
-    notificarPush,
+    notificarPushESom,
   };
 }

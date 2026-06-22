@@ -7,14 +7,16 @@ import { ChatInput } from '../components/ChatInput';
 import { useContatos } from '../hooks/useContatos';
 import { useChatMotor } from '../hooks/useChatMotor';
 import { useMobile } from '../hooks/useMobile';
-import { useNotificacoes } from '../hooks/useNotificacoes';  // ← NOVO
-import BannerNotificacao from '../components/BannerNotificacao';  // ← NOVO
+import { useNotificacoes } from '../hooks/useNotificacoes';
+import BannerNotificacao from '../components/BannerNotificacao';
+import { solicitarPermissaoNotificacoes } from '../services/notifications';
 
 export default function Chat() {
   const [usuarioLogado] = useState(localStorage.getItem('usuario') || 'usuario_teste');
   const [contatoAtivo, setContatoAtivo] = useState(null);
   const [perfilAberto, setPerfilAberto] = useState(false);
   const contatos = useContatos();
+
   const {
     historico,
     isOnline,
@@ -26,51 +28,52 @@ export default function Chat() {
     excluirMensagem
   } = useChatMotor(usuarioLogado, contatoAtivo);
 
-  // NOVO: Hook de notificações
   const {
     badges,
     bannerAtivo,
     erroConexao,
     exibirBanner,
     zerarBadge,
-    notificarPush
+    notificarPushESom
   } = useNotificacoes(usuarioLogado, contatoAtivo);
 
   const isMobile = useMobile();
   const mostrarSidebar = !isMobile || (isMobile && !contatoAtivo);
   const mostrarChat = !isMobile || (isMobile && contatoAtivo);
 
-  // NOVO: Handler que zera o badge ao abrir conversa
   const handleSelecionarContato = (contato) => {
     setContatoAtivo(contato);
     const idContato = contato.usuario || contato.email;
     zerarBadge(idContato);
   };
 
-  // NOVO: Exibir banner quando mensagem chega de outro usuário
+  useEffect(() => {
+    solicitarPermissaoNotificacoes();
+  }, []);
+
   useEffect(() => {
     if (historico.length > 0) {
       const ultima = historico[historico.length - 1];
+      const idContatoAtivo = contatoAtivo?.usuario || contatoAtivo?.email;
+
       if (
         ultima.remetente !== usuarioLogado &&
         ultima.remetente &&
-        !contatoAtivo
+        ultima.remetente !== idContatoAtivo
       ) {
         exibirBanner(ultima.remetente, ultima.texto);
-        notificarPush(ultima.remetente, ultima.texto);
+        notificarPushESom(ultima.remetente, ultima.texto);
       }
     }
-  }, [historico, usuarioLogado, contatoAtivo, exibirBanner, notificarPush]);
+  }, [historico, usuarioLogado, contatoAtivo, exibirBanner, notificarPushESom]);
 
   return (
     <>
-      {/* NOVO: Banner de notificação de nova mensagem */}
       <BannerNotificacao
         bannerAtivo={bannerAtivo}
         onFechar={() => {}}
       />
 
-      {/* NOVO: Banner de erro de conexão */}
       {erroConexao && (
         <div
           data-cy="banner-erro-conexao"
@@ -98,8 +101,8 @@ export default function Chat() {
             contatos={contatos}
             contatoAtivo={contatoAtivo}
             presencas={presencas}
-            badges={badges}  // ← NOVO
-            onSelectContato={handleSelecionarContato}  // ← MODIFICADO
+            badges={badges}
+            onSelectContato={handleSelecionarContato}
             onOpenPerfil={() => setPerfilAberto(true)}
             isMobile={isMobile}
           />
@@ -148,6 +151,7 @@ export default function Chat() {
           </div>
         )}
       </div>
+
       {perfilAberto && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(6, 6, 93, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
           <Perfil onClose={() => setPerfilAberto(false)} />
