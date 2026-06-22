@@ -11,27 +11,24 @@ export function useNotificacoes(usuarioLogado, contatoAtivo) {
   const [bannerAtivo, setBannerAtivo] = useState(null);
   const [erroConexao, setErroConexao] = useState(false);
 
-  // Consultar badges periodicamente
-  useEffect(() => {
+  const atualizarBadges = useCallback(async () => {
     if (!usuarioLogado) return;
-
-    const consultar = async () => {
-      try {
-        const dados = await consultarBadges();
-        setBadges(dados);
-        setErroConexao(false);
-      } catch (erro) {
-        setErroConexao(true);
-        console.error('Erro ao consultar badges:', erro);
-      }
-    };
-
-    consultar();
-    const intervalo = setInterval(consultar, 30000);
-    return () => clearInterval(intervalo);
+    try {
+      const dados = await consultarBadges();
+      setBadges(dados);
+      setErroConexao(false);
+    } catch (erro) {
+      setErroConexao(true);
+      console.error('Erro ao consultar badges:', erro);
+    }
   }, [usuarioLogado]);
 
-  // Atualiza o título da aba do navegador (Cenário do Feature)
+  useEffect(() => {
+    atualizarBadges();
+    const intervalo = setInterval(atualizarBadges, 30000);
+    return () => clearInterval(intervalo);
+  }, [atualizarBadges]);
+
   useEffect(() => {
     const totalNaoLidas = Object.values(badges).reduce((sum, val) => sum + val, 0);
     if (totalNaoLidas > 0) {
@@ -61,7 +58,10 @@ export function useNotificacoes(usuarioLogado, contatoAtivo) {
     }
   }, []);
 
-  // Notifica visualmente (Push) e com áudio
+  const incrementarBadge = useCallback(() => {
+    atualizarBadges();
+  }, [atualizarBadges]);
+
   const notificarPushESom = useCallback((remetente, texto) => {
     if (document.hidden) {
       exibirNotificacaoPush(remetente, texto);
@@ -75,6 +75,7 @@ export function useNotificacoes(usuarioLogado, contatoAtivo) {
     erroConexao,
     exibirBanner,
     zerarBadge,
+    incrementarBadge,
     notificarPushESom,
   };
 }

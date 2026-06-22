@@ -25,7 +25,8 @@ export default function Chat() {
     presencaContato,
     enviarMensagem,
     editarMensagem,
-    excluirMensagem
+    excluirMensagem,
+    novaMensagemRecebida
   } = useChatMotor(usuarioLogado, contatoAtivo);
 
   const {
@@ -34,6 +35,7 @@ export default function Chat() {
     erroConexao,
     exibirBanner,
     zerarBadge,
+    incrementarBadge,
     notificarPushESom
   } = useNotificacoes(usuarioLogado, contatoAtivo);
 
@@ -52,20 +54,16 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    if (historico.length > 0) {
-      const ultima = historico[historico.length - 1];
+    if (novaMensagemRecebida) {
       const idContatoAtivo = contatoAtivo?.usuario || contatoAtivo?.email;
-
-      if (
-        ultima.remetente !== usuarioLogado &&
-        ultima.remetente &&
-        ultima.remetente !== idContatoAtivo
-      ) {
-        exibirBanner(ultima.remetente, ultima.texto);
-        notificarPushESom(ultima.remetente, ultima.texto);
+      
+      if (novaMensagemRecebida.remetente !== idContatoAtivo) {
+        exibirBanner(novaMensagemRecebida.remetente, novaMensagemRecebida.texto);
+        notificarPushESom(novaMensagemRecebida.remetente, novaMensagemRecebida.texto);
+        incrementarBadge(novaMensagemRecebida.remetente);
       }
     }
-  }, [historico, usuarioLogado, contatoAtivo, exibirBanner, notificarPushESom]);
+  }, [novaMensagemRecebida, contatoAtivo, exibirBanner, notificarPushESom, incrementarBadge]);
 
   return (
     <>
@@ -90,7 +88,7 @@ export default function Chat() {
             boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
           }}
         >
-          Sem conexão. Verifique sua internet.
+          Sem conexao. Verifique sua internet.
         </div>
       )}
 

@@ -50,6 +50,7 @@ export function useChatMotor(usuarioLogado, contatoAtivo) {
     const [presencas, setPresencas] = useState({});
     const [erroEnvio, setErroEnvio] = useState("");
     const [socketVersion, setSocketVersion] = useState(0);
+    const [novaMensagemRecebida, setNovaMensagemRecebida] = useState(null);
 
     const ws = useRef(null);
     const contatoAtivoRef = useRef(contatoAtivo);
@@ -150,6 +151,15 @@ export function useChatMotor(usuarioLogado, contatoAtivo) {
                 }
 
                 if (tipo !== "message" || !pacote.texto) return;
+
+                // Emite um alerta global de nova mensagem
+                if (pacote.remetente && pacote.remetente !== usuarioLogado) {
+                    setNovaMensagemRecebida({
+                        remetente: pacote.remetente,
+                        texto: pacote.texto,
+                        timestamp: Date.now()
+                    });
+                }
 
                 const contatoAtualId = contatoId(contatoAtivoRef.current);
                 const status = statusParaLabel(pacote.status);
@@ -398,6 +408,7 @@ export function useChatMotor(usuarioLogado, contatoAtivo) {
         presencaContato,
         enviarMensagem,
         editarMensagem,
-        excluirMensagem
+        excluirMensagem,
+        novaMensagemRecebida
     };
 }
